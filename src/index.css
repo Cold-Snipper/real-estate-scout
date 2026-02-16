@@ -6,50 +6,50 @@
 
 @layer base {
   :root {
-    --background: 240 6% 7%;
-    --foreground: 0 0% 88%;
+    --background: 0 0% 4%;
+    --foreground: 40 20% 98%;
 
-    --card: 240 5% 10%;
-    --card-foreground: 0 0% 88%;
+    --card: 20 10% 10%;
+    --card-foreground: 40 20% 98%;
 
-    --popover: 240 5% 12%;
-    --popover-foreground: 0 0% 88%;
+    --popover: 20 10% 12%;
+    --popover-foreground: 40 20% 98%;
 
-    --primary: 174 62% 47%;
-    --primary-foreground: 240 6% 7%;
+    --primary: 43 96% 40%;
+    --primary-foreground: 0 0% 4%;
 
-    --secondary: 240 4% 16%;
-    --secondary-foreground: 0 0% 75%;
+    --secondary: 20 7% 16%;
+    --secondary-foreground: 30 5% 64%;
 
-    --muted: 240 4% 14%;
-    --muted-foreground: 0 0% 45%;
+    --muted: 20 8% 14%;
+    --muted-foreground: 25 5% 45%;
 
-    --accent: 174 62% 47%;
-    --accent-foreground: 240 6% 7%;
+    --accent: 43 96% 40%;
+    --accent-foreground: 0 0% 4%;
 
-    --destructive: 0 62% 55%;
-    --destructive-foreground: 0 0% 95%;
+    --destructive: 0 74% 42%;
+    --destructive-foreground: 40 20% 98%;
 
-    --success: 152 56% 46%;
-    --success-foreground: 240 6% 7%;
+    --success: 43 70% 50%;
+    --success-foreground: 0 0% 4%;
 
-    --warning: 45 93% 58%;
-    --warning-foreground: 240 6% 7%;
+    --warning: 35 90% 55%;
+    --warning-foreground: 0 0% 4%;
 
-    --border: 240 4% 18%;
-    --input: 240 4% 18%;
-    --ring: 174 62% 47%;
+    --border: 20 6% 20%;
+    --input: 20 6% 20%;
+    --ring: 43 96% 40%;
 
     --radius: 0.5rem;
 
-    --sidebar-background: 240 5% 9%;
-    --sidebar-foreground: 0 0% 88%;
-    --sidebar-primary: 174 62% 47%;
-    --sidebar-primary-foreground: 240 6% 7%;
-    --sidebar-accent: 240 4% 14%;
-    --sidebar-accent-foreground: 0 0% 88%;
-    --sidebar-border: 240 4% 18%;
-    --sidebar-ring: 174 62% 47%;
+    --sidebar-background: 20 10% 6%;
+    --sidebar-foreground: 40 20% 98%;
+    --sidebar-primary: 43 96% 40%;
+    --sidebar-primary-foreground: 0 0% 4%;
+    --sidebar-accent: 20 8% 14%;
+    --sidebar-accent-foreground: 40 20% 98%;
+    --sidebar-border: 20 6% 20%;
+    --sidebar-ring: 43 96% 40%;
 
     --font-sans: 'Inter', system-ui, sans-serif;
     --font-mono: 'JetBrains Mono', monospace;
@@ -79,23 +79,23 @@
 }
 
 .terminal-log .stderr {
-  color: hsl(0 62% 55%);
+  color: hsl(0 74% 50%);
 }
 
 .terminal-log .stdout {
-  color: hsl(0 0% 70%);
+  color: hsl(30 5% 70%);
 }
 
 .terminal-log .status {
-  color: hsl(174 62% 47%);
+  color: hsl(43 96% 50%);
 }
 
 .terminal-log .exit-ok {
-  color: hsl(152 56% 46%);
+  color: hsl(43 70% 55%);
 }
 
 .terminal-log .exit-err {
-  color: hsl(0 62% 55%);
+  color: hsl(0 74% 50%);
 }
 
 /* Scrollbar */
@@ -104,14 +104,14 @@
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: hsl(240 5% 10%);
+  background: hsl(20 10% 8%);
 }
 ::-webkit-scrollbar-thumb {
-  background: hsl(240 4% 22%);
+  background: hsl(20 6% 22%);
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: hsl(240 4% 30%);
+  background: hsl(20 6% 30%);
 }
 
 /* Status badges */
