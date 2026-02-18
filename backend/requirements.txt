@@ -9,6 +9,7 @@ schedule==1.2.2
 
 # MongoDB Atlas support
 pymongo==4.6.1
+python-dotenv==1.0.0
 
 # WhatsApp (optional — uncomment if you use WhatsApp notifications)
 # twilio==8.13.0

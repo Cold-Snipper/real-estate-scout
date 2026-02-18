@@ -21,7 +21,18 @@ import os
 import json
 import logging
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Dict, Optional, List
+
+# Load backend/.env so MONGO_URI is set when running without exporting
+if not os.getenv("MONGO_URI"):
+    _env_path = Path(__file__).resolve().parent / ".env"
+    if _env_path.exists():
+        try:
+            from dotenv import load_dotenv
+            load_dotenv(_env_path)
+        except ImportError:
+            pass
 
 try:
     from pymongo import MongoClient, ASCENDING
