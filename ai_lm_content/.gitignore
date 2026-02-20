@@ -1,0 +1,14 @@
+# Local Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+.env
+.env.local
+
+# IDE
+.idea/
+*.swp
+*.swo
+.DS_Store

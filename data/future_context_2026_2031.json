@@ -1,0 +1,76 @@
+{
+  "global_str_market": {
+    "2026_revenue": 145,
+    "2031_revenue": 250,
+    "cagr": 11.5,
+    "sources": [
+      "https://www.airdna.co/outlook-report",
+      "https://www.phocuswright.com/Travel-Research/Market-Overview-Sizing/Global-Short-Term-Rentals-2025",
+      "https://ec.europa.eu/eurostat/web/tourism",
+      "https://www.prnewswire.com/news-releases/2026-will-be-the-best-year-to-invest-in-short-term-rentals-since-2021-new-airdna-report-finds-302643393.html"
+    ]
+  },
+  "europe_str_market": {
+    "growth_rate": 5.2,
+    "key_drivers": [
+      "Slower supply growth (3.5% YoY) improving yield",
+      "Resilient demand (nights +4.4% in 2025)",
+      "EU Regulation 2024/1028 driving compliance and professional operators",
+      "Coastal, mountain/lake and suburban areas outperforming",
+      "FIFA World Cup 2026 demand tailwind for host cities"
+    ],
+    "supply_growth": 3.5,
+    "demand_growth": 4.4,
+    "sources": [
+      "https://www.airdna.co/outlook-report",
+      "https://www.airdna.co/blog/european-review-january-2026",
+      "https://ec.europa.eu/eurostat/product?code=DDN-20260116-1",
+      "https://ec.europa.eu/eurostat/statistics-explained/index.php?title=Short-stay_accommodation_offered_via_online_collaborative_economy_platforms"
+    ]
+  },
+  "population_trends": {
+    "eu_growth_rate": -0.1,
+    "migration_drivers": ["Asia", "intra-EU", "climate", "Ukraine displacement"],
+    "population_centers_shift": ["Southern Europe", "mid-sized cities", "suburbs", "coastal and mountain regions"],
+    "sources": [
+      "https://ec.europa.eu/eurostat/statistics-explained/index.php/Population_projections_in_the_EU",
+      "https://ec.europa.eu/eurostat/web/products-eurostat-news/w/ddn-20230330-1"
+    ]
+  },
+  "revenue_forecasts_by_region": {
+    "Southern Europe": {
+      "cagr": 6.5,
+      "key_cities": ["Lisbon", "Barcelona", "Madrid", "Rome", "Athens", "Dubrovnik", "Split", "Malaga", "Valencia", "Seville"]
+    },
+    "Central Europe": {
+      "cagr": 5.0,
+      "key_cities": ["Prague", "Vienna", "Budapest", "Warsaw", "Berlin", "Munich", "Krakow", "Bratislava", "Ljubljana"]
+    },
+    "Northern Europe": {
+      "cagr": 4.2,
+      "key_cities": ["Amsterdam", "London", "Paris", "Copenhagen", "Stockholm", "Oslo", "Dublin", "Helsinki", "Reykjavik"]
+    }
+  },
+  "regulatory_forecast": {
+    "2026–2028": [
+      "EU Regulation 2024/1028 full enforcement: single digital entry points, monthly data from platforms",
+      "Registration and data reporting mandatory (host identity, nights, registration numbers)",
+      "Platform verification and removal of illegal listings; penalties for non-compliance"
+    ],
+    "2029–2031": [
+      "Carbon and sustainability reporting for accommodations likely expanded",
+      "Potential 120-day caps or similar limits in more cities",
+      "Tighter land-use and building-standard enforcement at national level"
+    ],
+    "sources": [
+      "https://eur-lex.europa.eu/eli/reg/2024/1028/oj",
+      "https://eur-lex.europa.eu/EN/legal-content/summary/online-short-term-accommodation-rental-services-data-collection-and-sharing.html",
+      "https://www.europarl.europa.eu/news/en/press-room/20240223IPR18094/new-rules-for-a-responsible-and-transparent-short-term-rental-sector"
+    ]
+  },
+  "technology_trends": {
+    "AI_pricing": "standard by 2028",
+    "sustainability": "green certification demand rise",
+    "guest_preferences": ["bleisure", "digital nomad", "spontaneous trips", "experiential and home-like stays"]
+  }
+}

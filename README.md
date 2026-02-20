@@ -26,11 +26,16 @@ python parallel_scheduler.py
 
 See `backend/README.md` and `backend/MONGODB_SETUP.md` for DB and env.
 
+## Property valuation (daily rental)
+
+Evaluates listings for short-term rental viability using market data, 2026–2031 future context, and an optional LLM. Entry points: `property_evaluator.evaluate_property(...)` (root) or `lib.property_evaluator.evaluate_property(...)`. The LLM is behind a plug: see `lib/llm_valuation_plug.run_valuation` and `docs/PROPERTY_VALUATION.md`. Without Ollama or a custom plug, valuation returns a stub (score 0, recommendation "Avoid").
+
 ## Docs
 
 All instructional docs are in `docs/`. Start with:
 
 - `docs/LOVABLE_FRONTEND_SPEC.md` — API contract and UI context.
+- `docs/PROPERTY_VALUATION.md` — Property valuation context stack and LLM plug.
 - `docs/IMMO_SNIP_VS_COLD_BOT.md` — How backend and pipeline relate.
 - `docs/REAL_ESTATE_SCOUT_LOCAL.md` — Local run and ports.
 
