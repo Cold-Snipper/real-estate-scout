@@ -54,7 +54,7 @@ Stored in `java_ui/data/clients.csv` with fields:
 - `id`, `name`, `email`, `phone`
 - `status`, `stage`, `source`
 - `source_type`, `outreach_channel`
-- `automation_enabled`, `viability_score`
+- `automation_enabled`, `property_valuation_score`
 - `last_contacted_at`, `last_interaction`, `notes`
 
 ### Communications (CSV)

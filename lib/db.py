@@ -43,7 +43,11 @@ def set_mode(mode: str) -> None:
 
 
 # Table/collection names and SQLite table name mapping (logs -> activity_logs)
-COLLECTION_NAMES = ("operators", "operator_documents", "users", "leads", "agents", "logs")
+# CRM: owners, properties, conversations (in providers.db when using abstraction)
+COLLECTION_NAMES = (
+    "operators", "operator_documents", "users", "leads", "agents", "logs",
+    "owners", "properties", "conversations",
+)
 SQLITE_TABLE_MAP = {
     "operators": "operators",
     "operator_documents": "operator_documents",
@@ -51,6 +55,9 @@ SQLITE_TABLE_MAP = {
     "leads": "leads",
     "agents": "agents",
     "logs": "activity_logs",
+    "owners": "owners",
+    "properties": "properties",
+    "conversations": "conversations",
 }
 
 

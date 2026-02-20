@@ -115,8 +115,8 @@ CREATE TABLE IF NOT EXISTS leads (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     listing_hash TEXT,
     contact_email TEXT,
-    contact_phone TEXT,
-    source_url TEXT,
+    phone_number TEXT,
+    listing_url TEXT,
     is_private INTEGER DEFAULT 0,
     confidence REAL,
     reason TEXT,
@@ -147,13 +147,67 @@ CREATE TABLE IF NOT EXISTS activity_logs (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     listing_hash TEXT,
     contact_email TEXT,
-    source_url TEXT,
+    listing_url TEXT,
     status TEXT,
     channel TEXT,
     timestamp INTEGER,
     time TEXT
 );
 CREATE INDEX IF NOT EXISTS idx_activity_logs_timestamp ON activity_logs(timestamp);
+"""
+
+# CRM (owner-centric): same schema as lib/crm_storage for use with lib/db abstraction
+OWNERS_SCHEMA = """
+CREATE TABLE IF NOT EXISTS owners (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    owner_name TEXT,
+    owner_email TEXT UNIQUE,
+    owner_phone TEXT,
+    owner_notes TEXT,
+    created_at INTEGER,
+    updated_at INTEGER
+);
+"""
+PROPERTIES_SCHEMA = """
+CREATE TABLE IF NOT EXISTS properties (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    owner_id INTEGER,
+    listing_ref TEXT,
+    title TEXT,
+    price REAL,
+    bedrooms INTEGER,
+    bathrooms INTEGER,
+    surface_m2 REAL,
+    location TEXT,
+    description TEXT,
+    listing_url TEXT,
+    contact_email TEXT,
+    phone_number TEXT,
+    phone_source TEXT,
+    transaction_type TEXT,
+    viability_score REAL,
+    recommendation TEXT,
+    estimated_annual_gross REAL,
+    price_to_earnings REAL,
+    degree_of_certainty TEXT,
+    sales_pipeline_stage TEXT DEFAULT 'New Lead',
+    chatbot_pipeline_stage TEXT DEFAULT 'No Contact',
+    last_contact_date INTEGER,
+    created_at INTEGER,
+    updated_at INTEGER,
+    FOREIGN KEY(owner_id) REFERENCES owners(id)
+);
+"""
+CONVERSATIONS_SCHEMA = """
+CREATE TABLE IF NOT EXISTS conversations (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    property_id INTEGER,
+    channel TEXT,
+    message_text TEXT,
+    sender TEXT,
+    timestamp INTEGER,
+    FOREIGN KEY(property_id) REFERENCES properties(id)
+);
 """
 
 
@@ -175,6 +229,9 @@ def init_db(db_path: Path | None = None) -> Path:
         conn.executescript(LEADS_SCHEMA)
         conn.executescript(AGENTS_SCHEMA)
         conn.executescript(LOGS_SCHEMA)
+        conn.executescript(OWNERS_SCHEMA)
+        conn.executescript(PROPERTIES_SCHEMA)
+        conn.executescript(CONVERSATIONS_SCHEMA)
         # Migration: add operators.rules if not present; add agency_context_ext for expanded onboarding
         try:
             info = conn.execute("PRAGMA table_info(operators)").fetchall()
@@ -186,6 +243,37 @@ def init_db(db_path: Path | None = None) -> Path:
             # Migration: rename ideal_client -> ideal_client_profile (audit checklist)
             if "ideal_client" in col_names and "ideal_client_profile" not in col_names:
                 conn.execute("ALTER TABLE operators RENAME COLUMN ideal_client TO ideal_client_profile")
+            # Schema compliance: listing_url, phone_number (leads/activity_logs); properties schema fields
+            for table in ("leads", "activity_logs"):
+                try:
+                    info = conn.execute(f"PRAGMA table_info({table})").fetchall()
+                    cols = {row[1] for row in info}
+                    if "source_url" in cols and "listing_url" not in cols:
+                        conn.execute(f"ALTER TABLE {table} ADD COLUMN listing_url TEXT")
+                        conn.execute(f"UPDATE {table} SET listing_url = source_url")
+                    if table == "leads" and "contact_phone" in cols and "phone_number" not in cols:
+                        conn.execute("ALTER TABLE leads ADD COLUMN phone_number TEXT")
+                        conn.execute("UPDATE leads SET phone_number = contact_phone")
+                except sqlite3.OperationalError:
+                    pass
+            try:
+                info = conn.execute("PRAGMA table_info(properties)").fetchall()
+                cols = {row[1] for row in info}
+                for new_col, typ, old_col in [
+                    ("surface_m2", "REAL", "size_sqm"),
+                    ("listing_url", "TEXT", "source_url"),
+                    ("phone_number", "TEXT", "contact_phone"),
+                    ("transaction_type", "TEXT", "listing_type"),
+                ]:
+                    if old_col in cols and new_col not in cols:
+                        conn.execute(f"ALTER TABLE properties ADD COLUMN {new_col} {typ}")
+                        conn.execute(f"UPDATE properties SET {new_col} = {old_col}")
+                if "listing_ref" not in cols:
+                    conn.execute("ALTER TABLE properties ADD COLUMN listing_ref TEXT")
+                if "phone_source" not in cols:
+                    conn.execute("ALTER TABLE properties ADD COLUMN phone_source TEXT")
+            except sqlite3.OperationalError:
+                pass
         except sqlite3.OperationalError:
             pass
         conn.commit()

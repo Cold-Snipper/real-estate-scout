@@ -1,8 +1,9 @@
 import hashlib
 import random
+import sys
 import time
 from pathlib import Path
-from typing import Dict, Any
+from typing import Dict, Any, List, Tuple
 
 import yaml
 
@@ -12,6 +13,13 @@ from sender import send_email
 from storage import init_db, already_contacted, log_contacted, count_contacts_since
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent
+if str(_REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(_REPO_ROOT))
+
+try:
+    from lib.property_evaluator import evaluate_property as _evaluate_property
+except ImportError:
+    _evaluate_property = None  # optional: run without valuation
 
 
 def _load_config(path: str | None = None) -> Dict[str, Any]:
@@ -61,39 +69,48 @@ def main() -> None:
                 )
 
                 cards = page.query_selector_all(selectors["listing"])
+                # Collect eligible (score, text) for prioritization by property evaluation score
+                eligible: List[Tuple[float, str]] = []
                 for card in cards:
-                    if not _within_limits(conn, limits):
-                        break
-
                     try:
                         text = card.inner_text().strip()
                     except Exception:
                         continue
-
-                    if not text:
+                    if not text or not is_eligible(text, criteria, model=model):
                         continue
+                    score = 0.0
+                    if _evaluate_property is not None:
+                        try:
+                            city = config.get("default_city") or config.get("evaluation", {}).get("default_city")
+                            ev = _evaluate_property(text, city=city, model=model)
+                            score = float(ev.get("property_valuation_score") or 0)
+                        except Exception:
+                            pass
+                    eligible.append((score, text))
 
+                # Process in descending score order (prioritization)
+                eligible.sort(key=lambda x: -x[0])
+                for score, text in eligible:
+                    if not _within_limits(conn, limits):
+                        break
+                    contact = extract_contact(text, model=model)
+                    email = contact.get("email")
+                    if not email:
+                        continue
+                    if already_contacted(conn, email):
+                        continue
                     listing_hash = _hash_text(text.lower())
-                    if is_eligible(text, criteria, model=model):
-                        contact = extract_contact(text, model=model)
-                        email = contact.get("email")
-                        if not email:
-                            continue
-                        if already_contacted(conn, email):
-                            continue
-
-                        # Immo Snippy Provider Context Injection Point (active_provider_id from config)
-                        proposal = generate_proposal(text, model=model, provider_id=active_provider_id)
-                        send_email(
-                            to_email=email,
-                            subject=proposal["subject"],
-                            body=proposal["body"],
-                            from_email=email_cfg["from"],
-                            app_password=email_cfg["app_password"],
-                            oauth2_file=email_cfg.get("oauth2_file") or None,
-                        )
-                        log_contacted(conn, email, listing_hash, int(time.time()))
-
+                    # Immo Snippy Provider Context Injection Point (active_provider_id from config)
+                    proposal = generate_proposal(text, model=model, provider_id=active_provider_id)
+                    send_email(
+                        to_email=email,
+                        subject=proposal["subject"],
+                        body=proposal["body"],
+                        from_email=email_cfg["from"],
+                        app_password=email_cfg["app_password"],
+                        oauth2_file=email_cfg.get("oauth2_file") or None,
+                    )
+                    log_contacted(conn, email, listing_hash, int(time.time()))
                     time.sleep(random.randint(int(limits["delay_min"]), int(limits["delay_max"])))
 
                 time.sleep(random.randint(int(limits["delay_min"]), int(limits["delay_max"])))

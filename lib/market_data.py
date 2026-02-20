@@ -260,7 +260,7 @@ def _modifier_view(listing: dict[str, Any] | None) -> float:
 def _modifier_size(listing: dict[str, Any] | None) -> float:
     if not listing:
         return 1.0
-    sqm = listing.get("size_sqm") or listing.get("surface") or listing.get("area_sqm") or listing.get("living_area")
+    sqm = listing.get("surface_m2") or listing.get("size_sqm") or listing.get("surface") or listing.get("area_sqm") or listing.get("living_area")
     if sqm is None:
         return 1.0
     try:

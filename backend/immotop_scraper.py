@@ -23,6 +23,11 @@ from pathlib import Path
 from datetime import datetime, timezone
 from typing import Dict, List, Optional, Any, Tuple
 
+_root = Path(__file__).resolve().parent.parent
+if str(_root) not in sys.path:
+    sys.path.insert(0, str(_root))
+from lib.listings_schema import LISTING_FIELDS, build_listings_create_sql
+
 from bs4 import BeautifulSoup, Tag
 
 # Import shared DB functions from athome_scraper
@@ -71,22 +76,7 @@ log = logging.getLogger("immotop")
 # For now we'll just duplicate the minimal DB interface here
 # TODO: refactor shared code into db_utils.py
 
-ALL_FIELDS = [
-    "listing_ref","agency_ref","transaction_type","listing_url","source","title",
-    "location","description",
-    "sale_price","rent_price","monthly_charges","deposit","commission","availability",
-    "surface_m2","floor","rooms","bedrooms","year_of_construction",
-    "fitted_kitchen","open_kitchen","shower_rooms","bathrooms","separate_toilets","furnished",
-    "balcony","balcony_m2","terrace_m2","garden","parking_spaces",
-    "energy_class","thermal_insulation_class",
-    "gas_heating","electric_heating","heat_pump","district_heating",
-    "pellet_heating","oil_heating","solar_heating",
-    "basement","laundry_room","elevator","storage","pets_allowed",
-    "phone_number","phone_source",
-    "agency_name","agency_url","agent_name","agency_logo_url",
-    "image_urls","images_dir",
-    "first_seen","last_updated","title_history",
-]
+ALL_FIELDS = LISTING_FIELDS
 
 def db_connect() -> sqlite3.Connection:
     conn = sqlite3.connect(DB_PATH)
@@ -94,47 +84,20 @@ def db_connect() -> sqlite3.Connection:
     return conn
 
 def db_init() -> None:
-    """Create the listings table if it doesn't exist (same schema as athome)."""
+    """Create the listings table if it doesn't exist (schema: data/schema-realestate-listings-standard.json)."""
     with db_connect() as conn:
-        conn.execute("""
-    CREATE TABLE IF NOT EXISTS listings (
-      listing_ref TEXT PRIMARY KEY,
-      agency_ref TEXT, transaction_type TEXT, listing_url TEXT,
-      source TEXT,
-      title TEXT, location TEXT, description TEXT,
-      sale_price REAL, rent_price REAL,
-      monthly_charges REAL, deposit REAL,
-      commission TEXT, availability TEXT,
-      surface_m2 REAL, floor INTEGER,
-      rooms INTEGER, bedrooms INTEGER,
-      year_of_construction INTEGER,
-      fitted_kitchen INTEGER, open_kitchen INTEGER,
-      shower_rooms INTEGER, bathrooms INTEGER,
-      separate_toilets INTEGER, furnished INTEGER,
-      balcony INTEGER, balcony_m2 REAL, terrace_m2 REAL,
-      garden INTEGER, parking_spaces INTEGER,
-      energy_class TEXT, thermal_insulation_class TEXT,
-      gas_heating INTEGER, electric_heating INTEGER,
-      heat_pump INTEGER, district_heating INTEGER,
-      pellet_heating INTEGER, oil_heating INTEGER, solar_heating INTEGER,
-      basement INTEGER, laundry_room INTEGER,
-      elevator INTEGER, storage INTEGER, pets_allowed INTEGER,
-      phone_number TEXT, phone_source TEXT,
-      agency_name TEXT, agency_url TEXT,
-      agent_name TEXT, agency_logo_url TEXT,
-      image_urls TEXT, images_dir TEXT,
-      first_seen TEXT, last_updated TEXT,
-      title_history TEXT
-    )
-        """)
+        conn.executescript(build_listings_create_sql("listings"))
     log.info(f"DB initialized: {DB_PATH}")
 
 def db_get(ref: str) -> Optional[Dict]:
+    """Return listing row or None (only schema-compliant keys)."""
     with db_connect() as conn:
         row = conn.execute(
             "SELECT * FROM listings WHERE listing_ref = ?", (ref,)
         ).fetchone()
-    return dict(row) if row else None
+    if not row:
+        return None
+    return {k: row[k] for k in ALL_FIELDS if k in row.keys()}
 
 def db_upsert(data: Dict, is_update: bool = False) -> str:
     ref = data.get("listing_ref")
@@ -381,13 +344,14 @@ def scrape_detail(
     if ref_m:
         data["listing_ref"] = ref_m.group(1)
     
-    # Also try to find "référence:" in the description
-    ref_text = soup.find(string=re.compile(r"référence\s*:", re.I))
-    if ref_text:
-        parent_text = ref_text.parent.get_text() if ref_text.parent else ref_text
-        agency_ref_m = re.search(r"référence\s*:\s*(\S+)", parent_text, re.I)
-        if agency_ref_m:
-            data["agency_ref"] = _clean(agency_ref_m.group(1))
+    # Also try to find "référence: XXXXX" for listing_ref if not from URL
+    if not data.get("listing_ref"):
+        ref_text = soup.find(string=re.compile(r"référence\s*:\s*\S+", re.I))
+        if ref_text:
+            parent_text = ref_text.parent.get_text() if ref_text.parent else ""
+            ref_m = re.search(r"référence\s*:\s*(\d+)", parent_text, re.I)
+            if ref_m:
+                data["listing_ref"] = ref_m.group(1)
 
     # ── Title ────────────────────────────────────────────────
     h1 = soup.find("h1")

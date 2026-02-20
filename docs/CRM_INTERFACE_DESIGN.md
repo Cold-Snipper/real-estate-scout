@@ -1,6 +1,9 @@
-# CRM interface design (future build)
+# CRM interface design
 
-**Status:** Planning only — CRM is not built yet. This doc defines plugs, databases, flows, and data sources so the future CRM can be wired in cleanly.
+**Status:** In progress. This doc defines plugs, databases, flows, and data sources for the CRM.
+
+- **Functional specification:** [CRM_FUNCTIONAL_SPEC.md](CRM_FUNCTIONAL_SPEC.md) — full 20-point product spec (data fields, pipelines, owner-centric model, viability, sync, channels, conversation history, AI control, notifications, automation, evaluation panel, bulk actions, export, manual entry, etc.).
+- **Implementation status:** [CRM_IMPLEMENTATION_STATUS.md](CRM_IMPLEMENTATION_STATUS.md) — checklist of what is done, partial, or not done and where it lives in the codebase.
 
 ---
 
@@ -120,4 +123,4 @@ So the future CRM can be wired without rework:
 - **GET/POST** `.../api/clients/:id/communications` — list comms for client, log new comm.
 - **Optional:** **GET** `.../api/leads` (existing or from same pipeline DB) and **PATCH** `.../api/leads/:id` for status, so “leads” and “clients” stay in sync where they overlap.
 
-Use the **same** backend that already serves operators and (when present) leads/listings — e.g. **FastAPI** (current operator onboarding backend) — and the same DB choice (SQLite or Mongo) as the rest of the pipeline. That gives you one place for databases and one set of flows and data sources for the CRM to interface with.
+Use the **same** backend that already serves operators and (when present) leads/listings — e.g. FastAPI or Node — and the same DB choice (SQLite or Mongo) as the rest of the pipeline. That gives you one place for databases and one set of flows and data sources for the CRM to interface with.

@@ -24,6 +24,11 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, Optional, List
 
+_root = Path(__file__).resolve().parent.parent
+if str(_root) not in __import__("sys").path:
+    __import__("sys").path.insert(0, str(_root))
+from lib.listings_schema import LISTING_SCHEMA_KEYS
+
 # Load backend/.env so MONGO_URI is set when running without exporting
 if not os.getenv("MONGO_URI"):
     _env_path = Path(__file__).resolve().parent / ".env"
@@ -107,32 +112,33 @@ def db_init() -> None:
 # ─────────────────────────────────────────────────────────────
 
 def db_get(ref: str) -> Optional[Dict]:
-    """Get a listing by reference ID."""
+    """Get a listing by reference ID (only schema-compliant keys returned)."""
     collection = _get_collection()
     doc = collection.find_one({"listing_ref": ref})
-    
-    if doc:
-        # Remove MongoDB's _id field (not needed)
-        doc.pop("_id", None)
-    
-    return doc
+    if not doc:
+        return None
+    doc.pop("_id", None)
+    return {k: doc[k] for k in LISTING_SCHEMA_KEYS if k in doc}
 
 def db_upsert(data: Dict, is_update: bool = False) -> str:
     """
-    Insert or update a listing.
+    Insert or update a listing. Only schema-defined fields are stored.
     
     Returns:
         "inserted" | "updated" | "skipped"
     """
     collection = _get_collection()
     ref = data.get("listing_ref")
-    
     if not ref:
         log.warning("Skipping listing without listing_ref")
         return "skipped"
-    
+
+    # Keep only schema-compliant keys
+    data = {k: v for k, v in data.items() if k in LISTING_SCHEMA_KEYS}
+    data["listing_ref"] = ref
+
     now = datetime.now(timezone.utc).isoformat()
-    
+
     if is_update:
         # Update existing listing
         existing = db_get(ref)
@@ -247,8 +253,7 @@ def find_new_since(timestamp: str) -> List[Dict]:
     results = []
     for doc in cursor:
         doc.pop("_id", None)
-        results.append(doc)
-    
+        results.append({k: doc[k] for k in LISTING_SCHEMA_KEYS if k in doc})
     return results
 
 def find_updated_since(timestamp: str) -> List[Dict]:
@@ -262,8 +267,7 @@ def find_updated_since(timestamp: str) -> List[Dict]:
     results = []
     for doc in cursor:
         doc.pop("_id", None)
-        results.append(doc)
-    
+        results.append({k: doc[k] for k in LISTING_SCHEMA_KEYS if k in doc})
     return results
 
 def find_by_filter(filters: Dict) -> List[Dict]:
@@ -284,8 +288,7 @@ def find_by_filter(filters: Dict) -> List[Dict]:
     results = []
     for doc in cursor:
         doc.pop("_id", None)
-        results.append(doc)
-    
+        results.append({k: doc[k] for k in LISTING_SCHEMA_KEYS if k in doc})
     return results
 
 # ─────────────────────────────────────────────────────────────

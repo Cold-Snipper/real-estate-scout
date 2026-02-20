@@ -24,7 +24,6 @@ Phone logic (two passes)
 
 DB schema  (SQLite, listings.db)
   listing_ref      TEXT  PRIMARY KEY   — from "Réf atHome XXXXXXXX" / URL
-  agency_ref       TEXT
   transaction_type TEXT
   listing_url      TEXT
   title            TEXT
@@ -48,22 +47,17 @@ DB schema  (SQLite, listings.db)
   separate_toilets INTEGER
   furnished        INTEGER
   balcony          INTEGER
-  terrace          INTEGER
+  balcony_m2       REAL
+  terrace_m2       REAL
   garden           INTEGER
   parking_spaces   INTEGER
   energy_class     TEXT
   thermal_insulation_class TEXT
-  gas_heating      INTEGER
   electric_heating INTEGER
   heat_pump        INTEGER
-  district_heating INTEGER
-  pellet_heating   INTEGER
-  oil_heating      INTEGER
-  solar_heating    INTEGER
   basement         INTEGER
   laundry_room     INTEGER
   elevator         INTEGER
-  storage          INTEGER
   pets_allowed     INTEGER
   phone_number     TEXT
   phone_source     TEXT
@@ -76,6 +70,7 @@ DB schema  (SQLite, listings.db)
   first_seen       TEXT   (ISO datetime)
   last_updated     TEXT   (ISO datetime)
   title_history    TEXT   (JSON array of previous titles with timestamps)
+  (Schema: data/schema-realestate-listings-standard.json)
 """
 
 import re
@@ -88,6 +83,12 @@ import requests
 from pathlib import Path
 from datetime import datetime, timezone
 from typing import Dict, List, Optional, Any, Tuple
+
+# Project root for lib.listings_schema (schema-compliant listings)
+_root = Path(__file__).resolve().parent.parent
+if str(_root) not in sys.path:
+    sys.path.insert(0, str(_root))
+from lib.listings_schema import LISTING_FIELDS, build_listings_create_sql
 
 from bs4 import BeautifulSoup, Tag
 
@@ -164,37 +165,16 @@ CHAR_MAP = [
     # Energy
     ("energy_class",             ["Energy class","Classe énergétique","Energieklasse"],      "energy"),
     ("thermal_insulation_class", ["Thermal insulation class","Classe d'isolation thermique","Wärmedämmklasse"], "energy"),
-    ("gas_heating",              ["Gas heating","Chauffage gaz","Gasheizung"],               "bool"),
     ("electric_heating",         ["Electric heating","Chauffage électrique","Elektroheizung"],"bool"),
     ("heat_pump",                ["Heat pump","Pompe à chaleur","Wärmepumpe"],               "bool"),
-    ("district_heating",         ["District heating","Chauffage urbain","Fernheizung"],      "bool"),
-    ("pellet_heating",           ["Pellet heating","Chauffage aux pellets","Pelletheizung"], "bool"),
-    ("oil_heating",              ["Oil heating","Chauffage mazout","Ölheizung"],             "bool"),
-    ("solar_heating",            ["Solar heating","Chauffage solaire","Solarheizung"],       "bool"),
-    # Others
+    # Others (schema-compliant; no gas_heating, district_heating, pellet/oil/solar_heating, storage)
     ("basement",                 ["Basement","Cave","Keller"],                               "bool"),
     ("laundry_room",             ["Laundry room","Buanderie","Waschküche"],                  "bool"),
     ("elevator",                 ["Elevator","Ascenseur","Aufzug"],                          "bool"),
-    ("storage",                  ["Storage","Local de stockage","Lagerraum"],               "bool"),
     ("pets_allowed",             ["Pets allowed","Animaux acceptés","Haustiere erlaubt"],   "bool"),
 ]
 
-ALL_FIELDS = [
-    "listing_ref","agency_ref","transaction_type","listing_url","source","title",
-    "location","description",
-    "sale_price","rent_price","monthly_charges","deposit","commission","availability",
-    "surface_m2","floor","rooms","bedrooms","year_of_construction",
-    "fitted_kitchen","open_kitchen","shower_rooms","bathrooms","separate_toilets","furnished",
-    "balcony","balcony_m2","terrace_m2","garden","parking_spaces",
-    "energy_class","thermal_insulation_class",
-    "gas_heating","electric_heating","heat_pump","district_heating",
-    "pellet_heating","oil_heating","solar_heating",
-    "basement","laundry_room","elevator","storage","pets_allowed",
-    "phone_number","phone_source",
-    "agency_name","agency_url","agent_name","agency_logo_url",
-    "image_urls","images_dir",
-    "first_seen","last_updated","title_history",
-]
+ALL_FIELDS = LISTING_FIELDS
 
 # ─────────────────────────────────────────────────────────────
 # Database
@@ -207,58 +187,21 @@ def db_connect() -> sqlite3.Connection:
 
 
 def db_init():
-    """Create tables if they don't exist yet."""
-    col_defs = "\n".join(
-        f"  {f}  {'TEXT' if f not in ('floor','rooms','bedrooms','year_of_construction','shower_rooms','bathrooms','separate_toilets','parking_spaces') else 'INTEGER'},"
-        for f in ALL_FIELDS
-        if f not in ("listing_ref",)
-    )
-    # All boolean-like fields as INTEGER (0/1/NULL), prices as REAL
-    create_sql = f"""
-    CREATE TABLE IF NOT EXISTS listings (
-      listing_ref TEXT PRIMARY KEY,
-      agency_ref TEXT, transaction_type TEXT, listing_url TEXT,
-      source TEXT,
-      title TEXT, location TEXT, description TEXT,
-      sale_price REAL, rent_price REAL, monthly_charges REAL,
-      deposit REAL, commission TEXT, availability TEXT,
-      surface_m2 REAL, floor INTEGER, rooms INTEGER,
-      bedrooms INTEGER, year_of_construction INTEGER,
-      fitted_kitchen INTEGER, open_kitchen INTEGER,
-      shower_rooms INTEGER, bathrooms INTEGER,
-      separate_toilets INTEGER, furnished INTEGER,
-      balcony INTEGER, balcony_m2 REAL, terrace_m2 REAL,
-      garden INTEGER, parking_spaces INTEGER,
-      energy_class TEXT, thermal_insulation_class TEXT,
-      gas_heating INTEGER, electric_heating INTEGER,
-      heat_pump INTEGER, district_heating INTEGER,
-      pellet_heating INTEGER, oil_heating INTEGER,
-      solar_heating INTEGER,
-      basement INTEGER, laundry_room INTEGER,
-      elevator INTEGER, storage INTEGER, pets_allowed INTEGER,
-      phone_number TEXT, phone_source TEXT,
-      agency_name TEXT, agency_url TEXT,
-      agent_name TEXT, agency_logo_url TEXT,
-      image_urls TEXT, images_dir TEXT,
-      first_seen TEXT, last_updated TEXT,
-      title_history TEXT
-    );
-    CREATE INDEX IF NOT EXISTS idx_first_seen ON listings(first_seen);
-    CREATE INDEX IF NOT EXISTS idx_transaction ON listings(transaction_type);
-    CREATE INDEX IF NOT EXISTS idx_location ON listings(location);
-    """
+    """Create tables if they don't exist yet (schema: data/schema-realestate-listings-standard.json)."""
     with db_connect() as conn:
-        conn.executescript(create_sql)
+        conn.executescript(build_listings_create_sql("listings"))
     log.info(f"DB ready: {DB_PATH}")
 
 
 def db_get(ref: str) -> Optional[Dict]:
-    """Return the stored row for a listing_ref, or None."""
+    """Return the stored row for a listing_ref, or None (only schema-compliant keys)."""
     with db_connect() as conn:
         row = conn.execute(
             "SELECT * FROM listings WHERE listing_ref = ?", (ref,)
         ).fetchone()
-    return dict(row) if row else None
+    if not row:
+        return None
+    return {k: row[k] for k in ALL_FIELDS if k in row.keys()}
 
 
 def db_upsert(data: Dict, is_update: bool = False) -> str:
@@ -864,16 +807,7 @@ def scrape_detail(
         if m and not data.get("listing_ref"):
             data["listing_ref"] = m.group(1)
 
-    # "Réf Agence …"
-    agency_ref_node = soup.find(string=re.compile(
-        r"R[ée]f\.?\s+[Aa]gence|[Aa]gency\s+[Rr]ef", re.I
-    ))
-    if agency_ref_node:
-        parent = agency_ref_node.find_parent()
-        if parent:
-            nxt = parent.find_next_sibling()
-            if nxt:
-                data["agency_ref"] = _clean(nxt.get_text())
+    # (Agency ref not in schema; omit.)
 
     # ── Expand truncated description ("Voir tout" / "See all" / "Mehr anzeigen")
     _expand_description(driver)

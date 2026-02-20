@@ -6,7 +6,19 @@ Single codebase consolidating:
 - **Backend** — immo-snip-lu scrapers and schedulers (athome.lu, immotop.lu, MongoDB/SQLite). Lives in `backend/`.
 - **Docs** — Instructional markdown from COLD BOT (specs, run guides, comparison). Lives in `docs/`.
 
-## Run frontend
+## Run the full app (one app at http://localhost:8080)
+
+**One command (API + frontend):**
+```bash
+./start.sh
+```
+Then open **http://localhost:8080**. CRM: **http://localhost:8080/crm**, Operators: **http://localhost:8080/operator-onboarding**.
+
+**Or two terminals:**  
+Terminal 1: `./scripts/run-backend.sh`  
+Terminal 2: `cd real-estate-scout && npm install && npm run dev`
+
+## Run frontend (alternative)
 
 ```bash
 cd frontend && npm install && npm run dev
