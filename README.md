@@ -42,6 +42,10 @@ See `backend/README.md` and `backend/MONGODB_SETUP.md` for DB and env.
 
 Evaluates listings for short-term rental viability using market data, 2026–2031 future context, and an optional LLM. Entry points: `property_evaluator.evaluate_property(...)` (root) or `lib.property_evaluator.evaluate_property(...)`. The LLM is behind a plug: see `lib/llm_valuation_plug.run_valuation` and `docs/PROPERTY_VALUATION.md`. Without Ollama or a custom plug, valuation returns a stub (score 0, recommendation "Avoid").
 
+## Git push
+
+GitHub token for push is in **`.github_token`** (repo root; in `.gitignore`). Origin is configured to use it, so from repo root: `git push origin master:main` (or `git push origin main` if on `main`).
+
 ## Docs
 
 All instructional docs are in `docs/`. Start with:
