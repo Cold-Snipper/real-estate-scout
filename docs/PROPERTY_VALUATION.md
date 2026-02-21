@@ -55,7 +55,7 @@ To implement the LLM:
 - `lib/llm_valuation_plug.py` — `run_valuation()`; plug for the valuation LLM.  
 - `lib/property_evaluator.py` — Library entry: builds context stack, calls plug.  
 - `property_evaluator.py` — Root entry: same context stack, calls plug.  
-- `prompts/property_evaluation_context.txt` — Instructions (consider future context, use get_city_data).  
+- `ai_lm_content/property_valuation_daily_rental/instructions_context.txt` — Instructions (consider future context, use get_city_data).  
 - `ai_lm_content/property_valuation_daily_rental/` — System prompt, schema, reference data.
 
 ## Quick debug
