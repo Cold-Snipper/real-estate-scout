@@ -6,5 +6,5 @@
 .DS_Store
 *.zip
 
-# Legacy duplicate of real-estate-scout (use real-estate-scout/ for frontend)
-frontend/
+# Legacy (old submodule path; use frontend/ now)
+real-estate-scout/

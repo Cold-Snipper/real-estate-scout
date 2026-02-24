@@ -19,7 +19,7 @@ API_PID=$!
 sleep 2
 
 echo "Starting frontend on port 8080..."
-(cd real-estate-scout && (test -d node_modules || npm install) && npm run dev) &
+(cd frontend && (test -d node_modules || npm install) && npm run dev) &
 VITE_PID=$!
 
 echo ""

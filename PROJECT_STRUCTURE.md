@@ -2,10 +2,11 @@
 
 One place for each part of the app. Use this when you clone or open the repo.
 
-## Frontend (UI) — **`real-estate-scout/`**
+## Frontend (UI) — **`frontend/`**
 
 - **This is the only folder for the React/Vite app.** All UI work goes here.
-- Run: `cd real-estate-scout && npm install && npm run dev` → app at **http://localhost:8080**
+- Run: `cd frontend && npm install && npm run dev` → app at **http://localhost:8080**
+- **After clone:** run `git submodule update --init --recursive` so `frontend/` is filled (it’s a submodule).
 - Routes: `/`, `/crm`, `/operator-onboarding`, `/pipeline`, `/data`, `/website-bot`, `/facebook-bot`, etc.
 - API: set `VITE_API_BASE=http://localhost:8000` (or use proxy) so the UI talks to the backend.
 
