@@ -2,9 +2,11 @@
 
 Single codebase consolidating:
 
-- **Frontend** — Real Estate Scout UI (Vite/React, brutalist amber+green on black/white). Lives in `frontend/`.
+- **Frontend** — Real Estate Scout UI (Vite/React). Lives in **`real-estate-scout/`** (this is the only folder for the app).
 - **Backend** — immo-snip-lu scrapers and schedulers (athome.lu, immotop.lu, MongoDB/SQLite). Lives in `backend/`.
-- **Docs** — Instructional markdown from COLD BOT (specs, run guides, comparison). Lives in `docs/`.
+- **Docs** — Instructional markdown (specs, run guides). Lives in `docs/`.
+
+**→ See [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md) for a clear folder map.**
 
 ## Run the full app (one app at http://localhost:8080)
 
@@ -18,13 +20,13 @@ Then open **http://localhost:8080**. CRM: **http://localhost:8080/crm**, Operato
 Terminal 1: `./scripts/run-backend.sh`  
 Terminal 2: `cd real-estate-scout && npm install && npm run dev`
 
-## Run frontend (alternative)
+## Run frontend only
 
 ```bash
-cd frontend && npm install && npm run dev
+cd real-estate-scout && npm install && npm run dev
 ```
 
-Opens on port 8080. Set `VITE_API_BASE` (e.g. in `.env`) if the UI should talk to an API on another origin (see `docs/LOVABLE_FRONTEND_SPEC.md`).
+Opens on port 8080. Set `VITE_API_BASE=http://localhost:8000` (e.g. in `.env`) if the UI should talk to the API on another origin (see `docs/LOVABLE_FRONTEND_SPEC.md`).
 
 ## Run backend
 
@@ -55,4 +57,4 @@ All instructional docs are in `docs/`. Start with:
 - `docs/IMMO_SNIP_VS_COLD_BOT.md` — How backend and pipeline relate.
 - `docs/REAL_ESTATE_SCOUT_LOCAL.md` — Local run and ports.
 
-In these docs, “frontend” = `frontend/`, “backend” = `backend/` in this repo.
+In these docs, “frontend” = `real-estate-scout/`, “backend” = `backend/` in this repo.
