@@ -1,3 +1,7 @@
 # Do not commit secrets
 .github_token
 *.token
+
+# OS and archives
+.DS_Store
+*.zip

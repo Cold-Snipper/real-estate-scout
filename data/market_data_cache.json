@@ -9,46 +9,24 @@
     ],
     "neighborhoods": {
       "Le Marais": {
-        "base_adr": 212,
-        "base_occupancy": 0.82,
+        "adr": 212,
+        "occupancy": 0.82,
         "price_range": [
           800000,
           1500000
         ]
       },
       "Montmartre": {
-        "base_adr": 180,
-        "base_occupancy": 0.77,
+        "adr": 180,
+        "occupancy": 0.77,
         "price_range": [
           550000,
           950000
         ]
-      },
-      "Saint-Germain": {
-        "base_adr": 205,
-        "base_occupancy": 0.81,
-        "price_range": [
-          750000,
-          1400000
-        ]
-      },
-      "Bastille": {
-        "base_adr": 175,
-        "base_occupancy": 0.78,
-        "price_range": [
-          500000,
-          900000
-        ]
-      },
-      "Latin Quarter": {
-        "base_adr": 168,
-        "base_occupancy": 0.77,
-        "price_range": [
-          480000,
-          850000
-        ]
       }
-    }
+    },
+    "average_adr": 190,
+    "occupancy_rate": 0.79
   },
   "Barcelona": {
     "last_updated": "2026-02-20",
@@ -60,46 +38,24 @@
     ],
     "neighborhoods": {
       "Eixample": {
-        "base_adr": 175,
-        "base_occupancy": 0.78,
+        "adr": 175,
+        "occupancy": 0.78,
         "price_range": [
           520000,
           780000
         ]
       },
       "Gothic Quarter": {
-        "base_adr": 195,
-        "base_occupancy": 0.8,
+        "adr": 195,
+        "occupancy": 0.8,
         "price_range": [
           600000,
           900000
         ]
-      },
-      "Gr\u00e0cia": {
-        "base_adr": 155,
-        "base_occupancy": 0.75,
-        "price_range": [
-          420000,
-          650000
-        ]
-      },
-      "El Born": {
-        "base_adr": 182,
-        "base_occupancy": 0.79,
-        "price_range": [
-          550000,
-          820000
-        ]
-      },
-      "Poblenou": {
-        "base_adr": 148,
-        "base_occupancy": 0.74,
-        "price_range": [
-          400000,
-          620000
-        ]
       }
-    }
+    },
+    "average_adr": 165,
+    "occupancy_rate": 0.76
   },
   "Amsterdam": {
     "last_updated": "2026-02-20",
@@ -111,46 +67,24 @@
     ],
     "neighborhoods": {
       "Jordaan": {
-        "base_adr": 265,
-        "base_occupancy": 0.82,
+        "adr": 265,
+        "occupancy": 0.82,
         "price_range": [
           750000,
           1150000
         ]
       },
       "De Pijp": {
-        "base_adr": 230,
-        "base_occupancy": 0.79,
+        "adr": 230,
+        "occupancy": 0.79,
         "price_range": [
           650000,
           980000
         ]
-      },
-      "Centrum": {
-        "base_adr": 275,
-        "base_occupancy": 0.83,
-        "price_range": [
-          800000,
-          1250000
-        ]
-      },
-      "Oost": {
-        "base_adr": 220,
-        "base_occupancy": 0.78,
-        "price_range": [
-          620000,
-          940000
-        ]
-      },
-      "Noord": {
-        "base_adr": 205,
-        "base_occupancy": 0.76,
-        "price_range": [
-          580000,
-          880000
-        ]
       }
-    }
+    },
+    "average_adr": 248,
+    "occupancy_rate": 0.8
   },
   "Lisbon": {
     "last_updated": "2026-02-20",
@@ -162,46 +96,24 @@
     ],
     "neighborhoods": {
       "Alfama": {
-        "base_adr": 165,
-        "base_occupancy": 0.85,
+        "adr": 165,
+        "occupancy": 0.85,
         "price_range": [
           450000,
           680000
         ]
       },
       "Chiado": {
-        "base_adr": 180,
-        "base_occupancy": 0.84,
+        "adr": 180,
+        "occupancy": 0.84,
         "price_range": [
           500000,
           750000
         ]
-      },
-      "Bairro Alto": {
-        "base_adr": 170,
-        "base_occupancy": 0.83,
-        "price_range": [
-          470000,
-          710000
-        ]
-      },
-      "Bel\u00e9m": {
-        "base_adr": 155,
-        "base_occupancy": 0.82,
-        "price_range": [
-          430000,
-          650000
-        ]
-      },
-      "Pr\u00edncipe Real": {
-        "base_adr": 175,
-        "base_occupancy": 0.84,
-        "price_range": [
-          490000,
-          740000
-        ]
       }
-    }
+    },
+    "average_adr": 145,
+    "occupancy_rate": 0.83
   },
   "Berlin": {
     "last_updated": "2026-02-20",
@@ -213,46 +125,24 @@
     ],
     "neighborhoods": {
       "Mitte": {
-        "base_adr": 145,
-        "base_occupancy": 0.75,
+        "adr": 145,
+        "occupancy": 0.75,
         "price_range": [
           420000,
           630000
         ]
       },
       "Kreuzberg": {
-        "base_adr": 115,
-        "base_occupancy": 0.71,
+        "adr": 115,
+        "occupancy": 0.71,
         "price_range": [
           320000,
           480000
         ]
-      },
-      "Prenzlauer Berg": {
-        "base_adr": 135,
-        "base_occupancy": 0.74,
-        "price_range": [
-          380000,
-          570000
-        ]
-      },
-      "Charlottenburg": {
-        "base_adr": 140,
-        "base_occupancy": 0.73,
-        "price_range": [
-          400000,
-          600000
-        ]
-      },
-      "Friedrichshain": {
-        "base_adr": 120,
-        "base_occupancy": 0.72,
-        "price_range": [
-          340000,
-          510000
-        ]
       }
-    }
+    },
+    "average_adr": 125,
+    "occupancy_rate": 0.72
   },
   "London": {
     "last_updated": "2026-02-20",
@@ -264,46 +154,24 @@
     ],
     "neighborhoods": {
       "Westminster": {
-        "base_adr": 280,
-        "base_occupancy": 0.82,
+        "adr": 280,
+        "occupancy": 0.82,
         "price_range": [
           900000,
           1400000
         ]
       },
       "Shoreditch": {
-        "base_adr": 195,
-        "base_occupancy": 0.76,
+        "adr": 195,
+        "occupancy": 0.76,
         "price_range": [
           650000,
           980000
         ]
-      },
-      "Kensington": {
-        "base_adr": 255,
-        "base_occupancy": 0.8,
-        "price_range": [
-          820000,
-          1250000
-        ]
-      },
-      "Camden": {
-        "base_adr": 185,
-        "base_occupancy": 0.75,
-        "price_range": [
-          580000,
-          900000
-        ]
-      },
-      "Notting Hill": {
-        "base_adr": 240,
-        "base_occupancy": 0.79,
-        "price_range": [
-          780000,
-          1180000
-        ]
       }
-    }
+    },
+    "average_adr": 220,
+    "occupancy_rate": 0.78
   },
   "Rome": {
     "last_updated": "2026-02-20",
@@ -315,46 +183,24 @@
     ],
     "neighborhoods": {
       "Centro": {
-        "base_adr": 175,
-        "base_occupancy": 0.83,
+        "adr": 175,
+        "occupancy": 0.83,
         "price_range": [
           500000,
           750000
         ]
       },
       "Trastevere": {
-        "base_adr": 165,
-        "base_occupancy": 0.82,
+        "adr": 165,
+        "occupancy": 0.82,
         "price_range": [
           480000,
           720000
         ]
-      },
-      "Monti": {
-        "base_adr": 170,
-        "base_occupancy": 0.82,
-        "price_range": [
-          490000,
-          730000
-        ]
-      },
-      "Prati": {
-        "base_adr": 160,
-        "base_occupancy": 0.8,
-        "price_range": [
-          450000,
-          680000
-        ]
-      },
-      "Testaccio": {
-        "base_adr": 148,
-        "base_occupancy": 0.79,
-        "price_range": [
-          420000,
-          630000
-        ]
       }
-    }
+    },
+    "average_adr": 155,
+    "occupancy_rate": 0.81
   },
   "Madrid": {
     "last_updated": "2026-02-20",
@@ -366,46 +212,24 @@
     ],
     "neighborhoods": {
       "Salamanca": {
-        "base_adr": 165,
-        "base_occupancy": 0.84,
+        "adr": 165,
+        "occupancy": 0.84,
         "price_range": [
           450000,
           680000
         ]
       },
       "Malasa\u00f1a": {
-        "base_adr": 125,
-        "base_occupancy": 0.8,
+        "adr": 125,
+        "occupancy": 0.8,
         "price_range": [
           350000,
           530000
         ]
-      },
-      "Chamber\u00ed": {
-        "base_adr": 138,
-        "base_occupancy": 0.82,
-        "price_range": [
-          380000,
-          570000
-        ]
-      },
-      "Retiro": {
-        "base_adr": 152,
-        "base_occupancy": 0.83,
-        "price_range": [
-          420000,
-          630000
-        ]
-      },
-      "La Latina": {
-        "base_adr": 130,
-        "base_occupancy": 0.81,
-        "price_range": [
-          360000,
-          550000
-        ]
       }
-    }
+    },
+    "average_adr": 140,
+    "occupancy_rate": 0.83
   },
   "Prague": {
     "last_updated": "2026-02-20",
@@ -417,46 +241,24 @@
     ],
     "neighborhoods": {
       "Old Town": {
-        "base_adr": 145,
-        "base_occupancy": 0.82,
+        "adr": 145,
+        "occupancy": 0.82,
         "price_range": [
           380000,
           570000
         ]
       },
       "Vinohrady": {
-        "base_adr": 105,
-        "base_occupancy": 0.75,
+        "adr": 105,
+        "occupancy": 0.75,
         "price_range": [
           280000,
           420000
         ]
-      },
-      "Mal\u00e1 Strana": {
-        "base_adr": 155,
-        "base_occupancy": 0.84,
-        "price_range": [
-          420000,
-          630000
-        ]
-      },
-      "\u017di\u017ekov": {
-        "base_adr": 95,
-        "base_occupancy": 0.73,
-        "price_range": [
-          250000,
-          380000
-        ]
-      },
-      "Karl\u00edn": {
-        "base_adr": 115,
-        "base_occupancy": 0.77,
-        "price_range": [
-          310000,
-          470000
-        ]
       }
-    }
+    },
+    "average_adr": 118,
+    "occupancy_rate": 0.78
   },
   "Vienna": {
     "last_updated": "2026-02-20",
@@ -468,46 +270,24 @@
     ],
     "neighborhoods": {
       "Innere Stadt": {
-        "base_adr": 165,
-        "base_occupancy": 0.8,
+        "adr": 165,
+        "occupancy": 0.8,
         "price_range": [
           520000,
           780000
         ]
       },
       "Leopoldstadt": {
-        "base_adr": 120,
-        "base_occupancy": 0.75,
+        "adr": 120,
+        "occupancy": 0.75,
         "price_range": [
           380000,
           570000
         ]
-      },
-      "Neubau": {
-        "base_adr": 128,
-        "base_occupancy": 0.76,
-        "price_range": [
-          400000,
-          600000
-        ]
-      },
-      "Josefstadt": {
-        "base_adr": 132,
-        "base_occupancy": 0.77,
-        "price_range": [
-          410000,
-          620000
-        ]
-      },
-      "Mariahilf": {
-        "base_adr": 125,
-        "base_occupancy": 0.76,
-        "price_range": [
-          390000,
-          590000
-        ]
       }
-    }
+    },
+    "average_adr": 135,
+    "occupancy_rate": 0.77
   },
   "Budapest": {
     "last_updated": "2026-02-20",
@@ -519,46 +299,24 @@
     ],
     "neighborhoods": {
       "District V": {
-        "base_adr": 115,
-        "base_occupancy": 0.78,
+        "adr": 115,
+        "occupancy": 0.78,
         "price_range": [
           300000,
           450000
         ]
       },
       "District VII": {
-        "base_adr": 88,
-        "base_occupancy": 0.73,
+        "adr": 88,
+        "occupancy": 0.73,
         "price_range": [
           220000,
           330000
         ]
-      },
-      "Buda Castle": {
-        "base_adr": 125,
-        "base_occupancy": 0.8,
-        "price_range": [
-          350000,
-          520000
-        ]
-      },
-      "District VI": {
-        "base_adr": 98,
-        "base_occupancy": 0.76,
-        "price_range": [
-          260000,
-          400000
-        ]
-      },
-      "District VIII": {
-        "base_adr": 82,
-        "base_occupancy": 0.72,
-        "price_range": [
-          200000,
-          310000
-        ]
       }
-    }
+    },
+    "average_adr": 95,
+    "occupancy_rate": 0.75
   },
   "Warsaw": {
     "last_updated": "2026-02-20",
@@ -570,46 +328,24 @@
     ],
     "neighborhoods": {
       "\u015ar\u00f3dmie\u015bcie": {
-        "base_adr": 115,
-        "base_occupancy": 0.73,
+        "adr": 115,
+        "occupancy": 0.73,
         "price_range": [
           320000,
           480000
         ]
       },
       "Mokot\u00f3w": {
-        "base_adr": 85,
-        "base_occupancy": 0.68,
+        "adr": 85,
+        "occupancy": 0.68,
         "price_range": [
           240000,
           360000
         ]
-      },
-      "Praga": {
-        "base_adr": 72,
-        "base_occupancy": 0.65,
-        "price_range": [
-          200000,
-          300000
-        ]
-      },
-      "\u017boliborz": {
-        "base_adr": 105,
-        "base_occupancy": 0.72,
-        "price_range": [
-          300000,
-          450000
-        ]
-      },
-      "Ochota": {
-        "base_adr": 88,
-        "base_occupancy": 0.69,
-        "price_range": [
-          250000,
-          380000
-        ]
       }
-    }
+    },
+    "average_adr": 98,
+    "occupancy_rate": 0.7
   },
   "Lyon": {
     "last_updated": "2026-02-20",
@@ -672,46 +408,24 @@
     ],
     "neighborhoods": {
       "Centro": {
-        "base_adr": 175,
-        "base_occupancy": 0.79,
+        "adr": 175,
+        "occupancy": 0.79,
         "price_range": [
           520000,
           780000
         ]
       },
       "Navigli": {
-        "base_adr": 135,
-        "base_occupancy": 0.74,
+        "adr": 135,
+        "occupancy": 0.74,
         "price_range": [
           400000,
           600000
         ]
-      },
-      "Brera": {
-        "base_adr": 168,
-        "base_occupancy": 0.78,
-        "price_range": [
-          500000,
-          750000
-        ]
-      },
-      "Porta Romana": {
-        "base_adr": 142,
-        "base_occupancy": 0.75,
-        "price_range": [
-          430000,
-          650000
-        ]
-      },
-      "Corso Como": {
-        "base_adr": 158,
-        "base_occupancy": 0.77,
-        "price_range": [
-          470000,
-          710000
-        ]
       }
-    }
+    },
+    "average_adr": 150,
+    "occupancy_rate": 0.76
   },
   "Florence": {
     "last_updated": "2026-02-20",
@@ -723,46 +437,16 @@
     ],
     "neighborhoods": {
       "Historic Centre": {
-        "base_adr": 195,
-        "base_occupancy": 0.85,
+        "adr": 195,
+        "occupancy": 0.85,
         "price_range": [
           520000,
           780000
         ]
-      },
-      "Oltrarno": {
-        "base_adr": 172,
-        "base_occupancy": 0.83,
-        "price_range": [
-          460000,
-          690000
-        ]
-      },
-      "San Niccol\u00f2": {
-        "base_adr": 168,
-        "base_occupancy": 0.82,
-        "price_range": [
-          450000,
-          680000
-        ]
-      },
-      "Santa Croce": {
-        "base_adr": 158,
-        "base_occupancy": 0.81,
-        "price_range": [
-          430000,
-          650000
-        ]
-      },
-      "San Marco": {
-        "base_adr": 162,
-        "base_occupancy": 0.82,
-        "price_range": [
-          440000,
-          660000
-        ]
       }
-    }
+    },
+    "average_adr": 165,
+    "occupancy_rate": 0.82
   },
   "Porto": {
     "last_updated": "2026-02-20",
@@ -774,46 +458,16 @@
     ],
     "neighborhoods": {
       "Ribeira": {
-        "base_adr": 145,
-        "base_occupancy": 0.83,
+        "adr": 145,
+        "occupancy": 0.83,
         "price_range": [
           380000,
           570000
         ]
-      },
-      "Cedofeita": {
-        "base_adr": 115,
-        "base_occupancy": 0.79,
-        "price_range": [
-          350000,
-          530000
-        ]
-      },
-      "Baixa": {
-        "base_adr": 135,
-        "base_occupancy": 0.82,
-        "price_range": [
-          370000,
-          560000
-        ]
-      },
-      "Foz": {
-        "base_adr": 128,
-        "base_occupancy": 0.81,
-        "price_range": [
-          360000,
-          540000
-        ]
-      },
-      "Boavista": {
-        "base_adr": 122,
-        "base_occupancy": 0.8,
-        "price_range": [
-          340000,
-          510000
-        ]
       }
-    }
+    },
+    "average_adr": 120,
+    "occupancy_rate": 0.8
   },
   "Athens": {
     "last_updated": "2026-02-20",
@@ -825,46 +479,24 @@
     ],
     "neighborhoods": {
       "Plaka": {
-        "base_adr": 135,
-        "base_occupancy": 0.82,
+        "adr": 135,
+        "occupancy": 0.82,
         "price_range": [
           350000,
           530000
         ]
       },
       "Kolonaki": {
-        "base_adr": 125,
-        "base_occupancy": 0.79,
+        "adr": 125,
+        "occupancy": 0.79,
         "price_range": [
           320000,
           480000
         ]
-      },
-      "Monastiraki": {
-        "base_adr": 118,
-        "base_occupancy": 0.8,
-        "price_range": [
-          300000,
-          450000
-        ]
-      },
-      "Koukaki": {
-        "base_adr": 108,
-        "base_occupancy": 0.77,
-        "price_range": [
-          270000,
-          410000
-        ]
-      },
-      "Psiri": {
-        "base_adr": 112,
-        "base_occupancy": 0.78,
-        "price_range": [
-          285000,
-          430000
-        ]
       }
-    }
+    },
+    "average_adr": 115,
+    "occupancy_rate": 0.78
   },
   "Brussels": {
     "last_updated": "2026-02-20",
@@ -876,46 +508,16 @@
     ],
     "neighborhoods": {
       "EU Quarter": {
-        "base_adr": 145,
-        "base_occupancy": 0.76,
+        "adr": 145,
+        "occupancy": 0.76,
         "price_range": [
           420000,
           630000
         ]
-      },
-      "Sainte-Catherine": {
-        "base_adr": 132,
-        "base_occupancy": 0.74,
-        "price_range": [
-          380000,
-          570000
-        ]
-      },
-      "Ixelles": {
-        "base_adr": 118,
-        "base_occupancy": 0.72,
-        "price_range": [
-          340000,
-          510000
-        ]
-      },
-      "Saint-Gilles": {
-        "base_adr": 108,
-        "base_occupancy": 0.71,
-        "price_range": [
-          300000,
-          450000
-        ]
-      },
-      "Sablon": {
-        "base_adr": 155,
-        "base_occupancy": 0.78,
-        "price_range": [
-          450000,
-          680000
-        ]
       }
-    }
+    },
+    "average_adr": 125,
+    "occupancy_rate": 0.73
   },
   "Luxembourg City": {
     "last_updated": "2026-02-20",
@@ -925,48 +527,9 @@
       750000,
       1100000
     ],
-    "neighborhoods": {
-      "Ville Haute": {
-        "base_adr": 185,
-        "base_occupancy": 0.77,
-        "price_range": [
-          850000,
-          1250000
-        ]
-      },
-      "Kirchberg": {
-        "base_adr": 175,
-        "base_occupancy": 0.76,
-        "price_range": [
-          800000,
-          1200000
-        ]
-      },
-      "Gare": {
-        "base_adr": 155,
-        "base_occupancy": 0.73,
-        "price_range": [
-          700000,
-          1050000
-        ]
-      },
-      "Grund": {
-        "base_adr": 170,
-        "base_occupancy": 0.75,
-        "price_range": [
-          780000,
-          1150000
-        ]
-      },
-      "Limpertsberg": {
-        "base_adr": 168,
-        "base_occupancy": 0.75,
-        "price_range": [
-          760000,
-          1140000
-        ]
-      }
-    }
+    "neighborhoods": {},
+    "average_adr": 165,
+    "occupancy_rate": 0.74
   },
   "Dubrovnik": {
     "last_updated": "2026-02-20",
@@ -976,48 +539,9 @@
       450000,
       680000
     ],
-    "neighborhoods": {
-      "Old Town": {
-        "base_adr": 220,
-        "base_occupancy": 0.78,
-        "price_range": [
-          550000,
-          820000
-        ]
-      },
-      "Lapad": {
-        "base_adr": 168,
-        "base_occupancy": 0.7,
-        "price_range": [
-          400000,
-          600000
-        ]
-      },
-      "Plo\u010de": {
-        "base_adr": 195,
-        "base_occupancy": 0.74,
-        "price_range": [
-          480000,
-          720000
-        ]
-      },
-      "Babin Kuk": {
-        "base_adr": 175,
-        "base_occupancy": 0.71,
-        "price_range": [
-          430000,
-          650000
-        ]
-      },
-      "Pile": {
-        "base_adr": 200,
-        "base_occupancy": 0.76,
-        "price_range": [
-          500000,
-          750000
-        ]
-      }
-    }
+    "neighborhoods": {},
+    "average_adr": 185,
+    "occupancy_rate": 0.72
   },
   "Zagreb": {
     "last_updated": "2026-02-20",
@@ -1027,48 +551,9 @@
       220000,
       330000
     ],
-    "neighborhoods": {
-      "Upper Town": {
-        "base_adr": 95,
-        "base_occupancy": 0.72,
-        "price_range": [
-          260000,
-          390000
-        ]
-      },
-      "Lower Town": {
-        "base_adr": 88,
-        "base_occupancy": 0.7,
-        "price_range": [
-          240000,
-          360000
-        ]
-      },
-      "Tkal\u010di\u0107eva": {
-        "base_adr": 92,
-        "base_occupancy": 0.71,
-        "price_range": [
-          250000,
-          380000
-        ]
-      },
-      "Maksimir": {
-        "base_adr": 78,
-        "base_occupancy": 0.67,
-        "price_range": [
-          210000,
-          320000
-        ]
-      },
-      "Tre\u0161njevka": {
-        "base_adr": 75,
-        "base_occupancy": 0.66,
-        "price_range": [
-          200000,
-          300000
-        ]
-      }
-    }
+    "neighborhoods": {},
+    "average_adr": 82,
+    "occupancy_rate": 0.68
   },
   "Valencia": {
     "last_updated": "2026-02-20",
