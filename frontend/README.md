@@ -1,73 +1,63 @@
-# Welcome to your Lovable project
+# Immo Snippy — Frontend
 
-## Project info
+Next.js 16 (App Router) · React 19 · TypeScript · Tailwind CSS v4 · shadcn/ui · pnpm
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## Quick start
 
-## How can I edit this code?
-
-There are several ways of editing your application.
-
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+```bash
+cd frontend
+pnpm install
+pnpm dev
 ```
 
-**Edit a file directly in GitHub**
+App runs at **http://localhost:3000**. The backend API must be running at **http://localhost:8000** (see root `start.sh`).
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## Routes
 
-**Use GitHub Codespaces**
+| Path | Description |
+|------|-------------|
+| `/login` | Login page |
+| `/signup` | Signup page |
+| `/` | Dashboard overview |
+| `/crm` | CRM — lead and contact management |
+| `/available` | Available listings browser |
+| `/settings` | User / app settings |
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## Stack
 
-## What technologies are used for this project?
+- **Framework:** Next.js 16, App Router, React 19
+- **Styling:** Tailwind CSS v4, shadcn/ui (Radix UI primitives)
+- **Forms:** react-hook-form + zod
+- **Charts:** Recharts
+- **Icons:** Lucide React
+- **Package manager:** pnpm
 
-This project is built with:
+## Key files
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+```
+frontend/
+├── app/
+│   ├── (dashboard)/        # Authenticated layout group
+│   │   ├── page.tsx        # Dashboard home
+│   │   ├── crm/            # CRM page
+│   │   ├── available/      # Listings page
+│   │   └── settings/       # Settings page
+│   ├── login/page.tsx
+│   └── signup/page.tsx
+├── components/
+│   ├── ui/                 # shadcn/ui base components
+│   ├── app-sidebar.tsx
+│   ├── dashboard.tsx
+│   ├── crm-page.tsx
+│   ├── available-listings-page.tsx
+│   └── ...
+└── next.config.mjs
+```
 
-## How can I deploy this project?
+## Environment
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+Create a `.env.local` in this folder if you need to override API endpoints:
 
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+```env
+NEXT_PUBLIC_API_BASE=http://localhost:8000
+```
