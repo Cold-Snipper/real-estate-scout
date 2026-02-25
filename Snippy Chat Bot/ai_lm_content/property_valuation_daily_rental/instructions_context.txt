@@ -1,0 +1,15 @@
+Property Valuation Context for Daily Rental — Immo Snippy (2026)
+
+Always consider the 2026–2031 future context from future_context_loader.py when scoring viability. Population shifts, regulatory changes, and demand trends will affect long-term value.
+
+For any city, first call get_city_data(city, neighborhood) to get accurate 2026 market stats. If not in cache, use fallback estimation and note it.
+
+Use the returned data in your evaluation:
+- adr: Average Daily Rate (€) for the city or neighborhood
+- occupancy: Annual occupancy rate (0–1)
+- price_range: Typical [low, high] purchase price (€) for the area
+- last_updated: When the data was last updated
+
+Inject this into the LLM prompt as: "Market data for this city: ADR €XXX, occupancy XX%, typical price range €XXX–€YYY (last_updated: ...). From cache / from fallback estimation."
+
+When data is from fallback estimation, state that in the reasoning and be slightly more conservative on revenue estimates.

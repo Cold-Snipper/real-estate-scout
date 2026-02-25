@@ -126,8 +126,6 @@ AGENCY_EXT_LABELS = {
     "countries_special_rules": "Countries or cities to treat differently",
     "strict_rules": "Strict rules the AI must always follow",
     "additional_notes_ai": "Additional notes or guidelines for the AI",
-    "forbidden_phrases": "Phrases the bot must NEVER use",
-    "fee_summary_for_bot": "Fee/commission summary (exact wording for chatbot)",
 }
 
 

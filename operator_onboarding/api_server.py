@@ -40,6 +40,13 @@ from lib.crm_storage import (
     get_all_conversations_flat as crm_get_all_conversations_flat,
 )
 
+try:
+    from snippy_chatbot.api import router as chat_router
+    CHAT_ROUTER_AVAILABLE = True
+except Exception:
+    chat_router = None
+    CHAT_ROUTER_AVAILABLE = False
+
 # Settings file next to providers.db
 def _settings_path() -> Path:
     return get_db_path().parent / "api_settings.json"
@@ -111,6 +118,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+if CHAT_ROUTER_AVAILABLE:
+    app.include_router(chat_router)
 
 
 @app.get("/")

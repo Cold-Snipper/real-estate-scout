@@ -10,12 +10,15 @@
     .step { display: none; }
     .step.active { display: block; }
     .progress { margin: 1rem 0; height: 6px; background: #eee; border-radius: 3px; }
-    .progress div { height: 100%; width: 33%; background: #333; border-radius: 3px; transition: width .2s; }
-    .progress.step-2 div { width: 66%; }
-    .progress.step-3 div { width: 100%; }
+    .progress div { height: 100%; border-radius: 3px; transition: width .2s; background: #333; }
+    .progress.step-1 div { width: 25%; }
+    .progress.step-2 div { width: 50%; }
+    .progress.step-3 div { width: 75%; }
+    .progress.step-4 div { width: 100%; }
     label { display: block; margin-top: 0.75rem; font-weight: 500; }
     input, select, textarea { width: 100%; padding: 0.5rem; margin-top: 0.25rem; box-sizing: border-box; }
     textarea { min-height: 80px; }
+    .hint { font-size: 0.85rem; color: #666; margin-top: 0.2rem; }
     button { margin-top: 1rem; padding: 0.6rem 1.2rem; cursor: pointer; }
     .btns { display: flex; gap: 0.5rem; margin-top: 1rem; }
     .err { color: #c00; font-size: 0.9rem; margin-top: 0.5rem; }
@@ -24,10 +27,11 @@
 </head>
 <body>
   <h1>Operator Onboarding</h1>
-  <p>3-step form → POST /api/operators. Use for testing when the main React app is not available.</p>
+  <p>4-step form → POST /api/operators. Feeds the Snippy Chat Bot (context, contact links, rules).</p>
   <div class="progress step-1" id="progress"><div></div></div>
 
   <form id="form">
+    <!-- Step 1: Company basics + services/USPs -->
     <div class="step active" id="step1">
       <h2>Step 1 — Company basics</h2>
       <label>Company name *</label>
@@ -38,13 +42,24 @@
       <input name="tagline" />
       <label>Countries (e.g. LU, FR)</label>
       <input name="countries" placeholder="LU, FR" />
+      <label>Long description of your company (optional — what you tell owners)</label>
+      <textarea name="long_description" placeholder="We help property owners..."></textarea>
+      <label>Main office / hub city</label>
+      <input name="main_office" placeholder="e.g. Luxembourg City" />
+      <label>Number of properties managed (e.g. 50+)</label>
+      <input name="properties_managed" placeholder="e.g. 50+" />
+      <label>Services you offer (short description for the bot)</label>
+      <textarea name="services" placeholder="e.g. Full short-term rental management, pricing, guest communication, cleaning, compliance"></textarea>
+      <label>Key differentiators / USPs (bullet points)</label>
+      <textarea name="usps" placeholder="e.g. Local team, 24/7 support, no long-term contract"></textarea>
       <div class="btns">
         <button type="button" onclick="go(2)">Next</button>
       </div>
     </div>
 
+    <!-- Step 2: Tone & positioning -->
     <div class="step" id="step2">
-      <h2>Step 2 — 5 dropdowns</h2>
+      <h2>Step 2 — Tone & positioning</h2>
       <label>Tone / communication style</label>
       <select name="tone_style">
         <option value="professional_trustworthy">Professional and trustworthy</option>
@@ -88,22 +103,63 @@
         <option value="revenue_optimization_only">Revenue optimization only</option>
         <option value="legal_compliance_specialist">Legal & compliance specialist</option>
       </select>
+      <label>Key phrases to use where natural (comma- or line-separated)</label>
+      <textarea name="key_phrases" placeholder="e.g. discovery call, no obligation, full transparency"></textarea>
       <div class="btns">
         <button type="button" onclick="go(1)">Back</button>
         <button type="button" onclick="go(3)">Next</button>
       </div>
     </div>
 
+    <!-- Step 3: Contact & call booking (bot-critical) -->
     <div class="step" id="step3">
-      <h2>Step 3 — Links & notes</h2>
+      <h2>Step 3 — Contact & call booking</h2>
+      <p class="hint">The chatbot uses these to send owners your links and book discovery calls.</p>
+      <label>Contact phone (with country code, for WhatsApp & calls) *</label>
+      <input name="contact_phone" type="tel" placeholder="+352 661 123 456" required />
+      <label>Contact email (for owners to reach you) *</label>
+      <input name="contact_email" type="email" placeholder="contact@youragency.lu" required />
       <label>Calendly link</label>
       <input name="calendly_link" type="url" placeholder="https://calendly.com/..." />
-      <label>Qualification rules (text)</label>
-      <textarea name="qualification_rules" placeholder="e.g. Always offer 15-min call first"></textarea>
-      <label>Notes</label>
-      <textarea name="notes"></textarea>
+      <label>Discovery call length (minutes)</label>
+      <input name="call_length_minutes" type="number" min="10" max="60" value="30" placeholder="30" />
+      <label>Exact phrasing when asking for the call (optional)</label>
+      <input name="call_phrasing" placeholder="e.g. Book a quick 15-min slot here — no obligation." />
+      <label>When should the bot offer the call?</label>
+      <select name="when_offer_call">
+        <option value="after_first_reply">Immediately after first reply</option>
+        <option value="after_audit">After sending valuation / audit</option>
+        <option value="strong_interest">Only after strong interest shown</option>
+        <option value="never_auto">Never automatically (manual follow-up)</option>
+      </select>
+      <label>Qualification rules (when to offer the call)</label>
+      <textarea name="qualification_rules" placeholder="e.g. Property in our area, owner open to short-term"></textarea>
       <div class="btns">
         <button type="button" onclick="go(2)">Back</button>
+        <button type="button" onclick="go(4)">Next</button>
+      </div>
+    </div>
+
+    <!-- Step 4: Chatbot rules & content -->
+    <div class="step" id="step4">
+      <h2>Step 4 — Chatbot rules & content</h2>
+      <p class="hint">These feed the Snippy Chat Bot so it stays on-brand and compliant.</p>
+      <label>Phrases the bot must NEVER use (one per line)</label>
+      <textarea name="forbidden_phrases" placeholder="e.g. guaranteed occupancy&#10;we promise 100%"></textarea>
+      <label>1–3 short success stories or results to mention</label>
+      <textarea name="results_highlight" placeholder="e.g. Owner in Kirchberg got 2× long-term rent in 6 months"></textarea>
+      <label>Fee/commission summary for the bot (exact wording)</label>
+      <input name="fee_summary_for_bot" placeholder="e.g. We take 18% of booking revenue; no setup fee." />
+      <label>Rules the bot must always follow (one per line)</label>
+      <textarea name="rules" placeholder="e.g. Never promise a specific occupancy %&#10;Always mention DAC7 in Luxembourg"></textarea>
+      <label>Strict rules or extra guidelines for the AI (optional)</label>
+      <textarea name="strict_rules" placeholder="Free text"></textarea>
+      <label>Additional notes or guidelines for the AI (optional)</label>
+      <textarea name="additional_notes_ai" placeholder="Tone, edge cases, countries"></textarea>
+      <label>Notes (internal)</label>
+      <textarea name="notes" placeholder="Internal notes"></textarea>
+      <div class="btns">
+        <button type="button" onclick="go(3)">Back</button>
         <button type="submit">Save → POST /api/operators</button>
       </div>
     </div>
@@ -113,18 +169,20 @@
 
   <script>
     let currentStep = 1;
+    const totalSteps = 4;
     function go(step) {
       document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
       document.getElementById('step' + step).classList.add('active');
       document.getElementById('progress').className = 'progress step-' + step;
       currentStep = step;
     }
+
     document.getElementById('form').onsubmit = async function(e) {
       e.preventDefault();
       const msg = document.getElementById('message');
       msg.textContent = '';
       const fd = new FormData(this);
-      const primary_service_package = fd.get('primary_service_package');
+
       const body = {
         company_name: fd.get('company_name'),
         website_url: fd.get('website_url') || undefined,
@@ -137,8 +195,50 @@
         qualification_rules: fd.get('qualification_rules') || undefined,
         calendly_link: fd.get('calendly_link') || undefined,
         notes: fd.get('notes') || undefined,
+        services: fd.get('services') || undefined,
+        usps: fd.get('usps') || undefined,
+        key_phrases: fd.get('key_phrases') || undefined,
+        contact_phone: fd.get('contact_phone') || undefined,
+        contact_email: fd.get('contact_email') || undefined,
       };
-      if (primary_service_package) body.agency_context_ext = { primary_service_package };
+
+      const callMins = fd.get('call_length_minutes');
+      if (callMins !== null && callMins !== '') {
+        const n = parseInt(callMins, 10);
+        if (!isNaN(n) && n >= 10 && n <= 60) body.call_length_minutes = n;
+      }
+
+      const rulesText = fd.get('rules') || '';
+      if (rulesText.trim()) {
+        body.rules = rulesText.split(/\n/).map(s => s.trim()).filter(Boolean);
+      }
+
+      const agencyExt = {};
+      const primary_service_package = fd.get('primary_service_package');
+      if (primary_service_package) agencyExt.primary_service_package = primary_service_package;
+      const long_description = fd.get('long_description');
+      if (long_description && long_description.trim()) agencyExt.long_description = long_description.trim();
+      const main_office = fd.get('main_office');
+      if (main_office && main_office.trim()) agencyExt.main_office = main_office.trim();
+      const properties_managed = fd.get('properties_managed');
+      if (properties_managed && properties_managed.trim()) agencyExt.properties_managed = properties_managed.trim();
+      const call_phrasing = fd.get('call_phrasing');
+      if (call_phrasing && call_phrasing.trim()) agencyExt.call_phrasing = call_phrasing.trim();
+      const when_offer_call = fd.get('when_offer_call');
+      if (when_offer_call) agencyExt.when_offer_call = when_offer_call;
+      const forbidden_phrases = fd.get('forbidden_phrases');
+      if (forbidden_phrases && forbidden_phrases.trim()) agencyExt.forbidden_phrases = forbidden_phrases.trim();
+      const results_highlight = fd.get('results_highlight');
+      if (results_highlight && results_highlight.trim()) agencyExt.results_highlight = results_highlight.trim();
+      const fee_summary_for_bot = fd.get('fee_summary_for_bot');
+      if (fee_summary_for_bot && fee_summary_for_bot.trim()) agencyExt.fee_summary_for_bot = fee_summary_for_bot.trim();
+      const strict_rules = fd.get('strict_rules');
+      if (strict_rules && strict_rules.trim()) agencyExt.strict_rules = strict_rules.trim();
+      const additional_notes_ai = fd.get('additional_notes_ai');
+      if (additional_notes_ai && additional_notes_ai.trim()) agencyExt.additional_notes_ai = additional_notes_ai.trim();
+
+      if (Object.keys(agencyExt).length > 0) body.agency_context_ext = agencyExt;
+
       try {
         const r = await fetch('/api/operators', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
         const data = await r.json().catch(() => ({}));

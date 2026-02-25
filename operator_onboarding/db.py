@@ -240,6 +240,11 @@ def init_db(db_path: Path | None = None) -> Path:
                 conn.execute("ALTER TABLE operators ADD COLUMN rules TEXT")
             if "agency_context_ext" not in col_names:
                 conn.execute("ALTER TABLE operators ADD COLUMN agency_context_ext TEXT")
+            # Bot feed: contact fields for generate_contact_links
+            if "contact_phone" not in col_names:
+                conn.execute("ALTER TABLE operators ADD COLUMN contact_phone TEXT")
+            if "contact_email" not in col_names:
+                conn.execute("ALTER TABLE operators ADD COLUMN contact_email TEXT")
             # Migration: rename ideal_client -> ideal_client_profile (audit checklist)
             if "ideal_client" in col_names and "ideal_client_profile" not in col_names:
                 conn.execute("ALTER TABLE operators RENAME COLUMN ideal_client TO ideal_client_profile")
