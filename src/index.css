@@ -1,0 +1,103 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 30 6% 97%;
+    --foreground: 25 18% 8%;
+
+    --card: 36 20% 98%;
+    --card-foreground: 25 18% 8%;
+
+    --popover: 36 20% 98%;
+    --popover-foreground: 25 18% 8%;
+
+    --primary: 40 72% 50%;
+    --primary-foreground: 40 30% 99%;
+
+    --secondary: 33 12% 92%;
+    --secondary-foreground: 25 12% 22%;
+
+    --muted: 33 10% 93%;
+    --muted-foreground: 25 8% 38%;
+
+    --accent: 36 30% 88%;
+    --accent-foreground: 25 18% 10%;
+
+    --destructive: 0 72% 42%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 142 50% 40%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 90% 55%;
+    --warning-foreground: 25 15% 12%;
+
+    --border: 33 12% 88%;
+    --input: 33 12% 88%;
+    --ring: 40 72% 50%;
+
+    --radius: 0.625rem;
+
+    --sidebar-background: 36 16% 95%;
+    --sidebar-foreground: 25 18% 12%;
+    --sidebar-primary: 40 72% 50%;
+    --sidebar-primary-foreground: 40 30% 99%;
+    --sidebar-accent: 36 20% 90%;
+    --sidebar-accent-foreground: 25 18% 10%;
+    --sidebar-border: 33 12% 88%;
+    --sidebar-ring: 40 72% 50%;
+
+    --font-sans: 'DM Sans', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    font-size: 17px;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+
+  code, pre, .font-mono {
+    font-family: var(--font-mono);
+  }
+}
+
+/* Terminal log */
+.terminal-log {
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  line-height: 1.65;
+}
+.terminal-log .stderr { color: hsl(0 65% 42%); }
+.terminal-log .stdout { color: hsl(25 10% 28%); }
+.terminal-log .status { color: hsl(40 72% 40%); font-weight: 500; }
+.terminal-log .exit-ok { color: hsl(142 50% 36%); }
+.terminal-log .exit-err { color: hsl(0 65% 42%); }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: hsl(33 10% 80%); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: hsl(33 10% 68%); }
+
+/* Status badges */
+.status-idle { @apply bg-secondary text-secondary-foreground; }
+.status-starting { @apply bg-warning/15 text-warning; }
+.status-running { @apply bg-destructive/10 text-destructive; }
+.status-stopped { @apply bg-muted text-muted-foreground; }
+.status-error { @apply bg-destructive/15 text-destructive; }
