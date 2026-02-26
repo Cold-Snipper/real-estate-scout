@@ -794,8 +794,8 @@ function AddContactDialog({ open, onClose }: { open: boolean; onClose: () => voi
 // ── Main CRM Page ─────────────────────────────────────────────────────────────
 
 const MAIN_TABS = [
-  { key: "contacts" as const, label: "Contacts", icon: Users },
   { key: "pipeline" as const, label: "Pipeline", icon: Activity },
+  { key: "contacts" as const, label: "Contacts", icon: Users },
   { key: "flow" as const, label: "Data Flow", icon: ArrowRight },
 ]
 
@@ -806,7 +806,7 @@ export function CrmDashboard() {
   const [filterStage, setFilterStage] = useState("")
   const [filterViability, setFilterViability] = useState("")
   const [filterCity, setFilterCity] = useState("")
-  const [activeTab, setActiveTab] = useState<"contacts" | "pipeline" | "flow">("contacts")
+  const [activeTab, setActiveTab] = useState<"contacts" | "pipeline" | "flow">("pipeline")
   const [addOwnerOpen, setAddOwnerOpen] = useState(false)
   const [selectedOwnerIds, setSelectedOwnerIds] = useState<Set<number>>(new Set())
   const [globalAiAuto, setGlobalAiAuto] = useState(true)
