@@ -1,15 +1,18 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useRef, useEffect } from "react"
+import { ChevronLeft, ChevronRight } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { ListingFilters } from "@/components/listing-filters"
 import { ListingTable } from "@/components/listing-table"
 import { ListingDrawer } from "@/components/listing-drawer"
 import { useListings } from "@/lib/listing-context"
 import { type Listing } from "@/lib/listings-data"
+import { PAGE_SIZE } from "@/lib/config"
 
 interface Filters {
-  locations: string[]
+  locationQuery: string
   minScore: number
   bedrooms: string
   sqmMin: string
@@ -20,8 +23,8 @@ interface Filters {
 }
 
 const defaultFilters: Filters = {
-  locations: [],
-  minScore: 6,
+  locationQuery: "",
+  minScore: 0,
   bedrooms: "any",
   sqmMin: "",
   sqmMax: "",
@@ -31,21 +34,29 @@ const defaultFilters: Filters = {
 }
 
 export function Dashboard() {
-  const { listings: listingData, updateStatus } = useListings()
+  const { listings: listingData, loading, updateStatus, freshMaxHours } = useListings()
   const [filters, setFilters] = useState<Filters>(defaultFilters)
+  const [page, setPage] = useState(0)
   const [selectedListing, setSelectedListing] = useState<Listing | null>(null)
   const [drawerOpen, setDrawerOpen] = useState(false)
 
+  // Reset to first page when filters change
+  const prevFiltersRef = useRef(filters)
+  useEffect(() => {
+    if (prevFiltersRef.current !== filters) {
+      setPage(0)
+      prevFiltersRef.current = filters
+    }
+  }, [filters])
+
   const newTodayCount = listingData.filter(
-    (l) => l.status === "New" && l.daysOnMarket <= 3
+    (l) => l.status === "New" && l.daysOnMarket === 0
   ).length
 
   const filteredListings = useMemo(() => {
     return listingData.filter((listing) => {
-      if (filters.locations.length > 0 && !filters.locations.includes(listing.location)) {
-        return false
-      }
-      if (listing.airbnbScore < filters.minScore) return false
+      if (filters.locationQuery && !listing.location.toLowerCase().includes(filters.locationQuery.toLowerCase())) return false
+      if (filters.minScore > 0 && (listing.airbnbScore ?? 0) < filters.minScore) return false
       if (filters.bedrooms !== "any" && listing.beds < Number(filters.bedrooms)) return false
       if (filters.sqmMin && listing.sqm < Number(filters.sqmMin)) return false
       if (filters.sqmMax && listing.sqm > Number(filters.sqmMax)) return false
@@ -55,6 +66,9 @@ export function Dashboard() {
       return true
     })
   }, [listingData, filters])
+
+  const totalPages = Math.max(1, Math.ceil(filteredListings.length / PAGE_SIZE))
+  const paginatedListings = filteredListings.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE)
 
   const handleStatusChange = (id: string, status: Listing["status"]) => {
     updateStatus(id, status)
@@ -67,6 +81,11 @@ export function Dashboard() {
     setSelectedListing(listing)
     setDrawerOpen(true)
   }
+
+  const cutoffLabel =
+    freshMaxHours >= 48
+      ? `${Math.round(freshMaxHours / 24)} days`
+      : `${freshMaxHours} hours`
 
   return (
     <>
@@ -81,6 +100,10 @@ export function Dashboard() {
             </Badge>
           )}
         </div>
+        <span className="text-xs text-muted-foreground">
+          Showing listings from the last{" "}
+          <span className="font-semibold text-foreground">{cutoffLabel}</span>
+        </span>
       </header>
 
       <div className="flex-1 overflow-y-auto px-8 py-6">
@@ -90,12 +113,50 @@ export function Dashboard() {
             onFiltersChange={setFilters}
             matchCount={filteredListings.length}
           />
-          <ListingTable
-            listings={filteredListings}
-            onRowClick={handleRowClick}
-            onStatusChange={handleStatusChange}
-            selectedId={selectedListing?.id}
-          />
+
+          {loading ? (
+            <div className="flex items-center justify-center py-16 text-muted-foreground">
+              <p className="text-sm">Loading listings…</p>
+            </div>
+          ) : (
+            <>
+              <ListingTable
+                listings={paginatedListings}
+                onRowClick={handleRowClick}
+                onStatusChange={handleStatusChange}
+                selectedId={selectedListing?.id}
+              />
+
+              {totalPages > 1 && (
+                <div className="flex items-center justify-between">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setPage((p) => Math.max(0, p - 1))}
+                    disabled={page === 0}
+                    className="gap-1.5"
+                  >
+                    <ChevronLeft className="size-3.5" />
+                    Previous
+                  </Button>
+                  <span className="text-sm text-muted-foreground">
+                    Page {page + 1} of {totalPages} —{" "}
+                    {filteredListings.length} listing{filteredListings.length !== 1 ? "s" : ""}
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+                    disabled={page >= totalPages - 1}
+                    className="gap-1.5"
+                  >
+                    Next
+                    <ChevronRight className="size-3.5" />
+                  </Button>
+                </div>
+              )}
+            </>
+          )}
         </div>
       </div>
 

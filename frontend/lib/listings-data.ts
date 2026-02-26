@@ -8,16 +8,20 @@ export interface AIScoreDimension {
 
 export interface Listing {
   id: string
-  photo: string
+  listing_ref?: string
+  photo: string | null
   address: string
   location: string
   price: number
   beds: number
   sqm: number
-  airbnbScore: number
+  airbnbScore: number | null
   daysOnMarket: number
   status: ListingStatus
   aiBreakdown: AIScoreDimension[]
+  source?: string
+  listing_url?: string | null
+  transaction_type?: string
 }
 
 export const LOCATIONS = [

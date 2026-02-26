@@ -1,10 +1,9 @@
 "use client"
 
-import { X, ChevronDown } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
+import { X, Search } from "lucide-react"
 import { Slider } from "@/components/ui/slider"
 import { cn } from "@/lib/utils"
-import { LOCATIONS, STATUS_OPTIONS, BEDROOM_OPTIONS, type ListingStatus } from "@/lib/listings-data"
+import { STATUS_OPTIONS, BEDROOM_OPTIONS } from "@/lib/listings-data"
 import {
   Select,
   SelectContent,
@@ -12,15 +11,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
-import { Checkbox } from "@/components/ui/checkbox"
 
 interface Filters {
-  locations: string[]
+  locationQuery: string
   minScore: number
   bedrooms: string
   sqmMin: string
@@ -38,7 +31,7 @@ interface ListingFiltersProps {
 
 export function ListingFilters({ filters, onFiltersChange, matchCount }: ListingFiltersProps) {
   const hasActiveFilters =
-    filters.locations.length > 0 ||
+    filters.locationQuery !== "" ||
     filters.minScore !== 6 ||
     filters.bedrooms !== "any" ||
     filters.sqmMin !== "" ||
@@ -49,7 +42,7 @@ export function ListingFilters({ filters, onFiltersChange, matchCount }: Listing
 
   const clearFilters = () => {
     onFiltersChange({
-      locations: [],
+      locationQuery: "",
       minScore: 6,
       bedrooms: "any",
       sqmMin: "",
@@ -60,46 +53,20 @@ export function ListingFilters({ filters, onFiltersChange, matchCount }: Listing
     })
   }
 
-  const toggleLocation = (location: string) => {
-    const next = filters.locations.includes(location)
-      ? filters.locations.filter((l) => l !== location)
-      : [...filters.locations, location]
-    onFiltersChange({ ...filters, locations: next })
-  }
-
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center gap-3">
-        {/* Location multiselect */}
-        <Popover>
-          <PopoverTrigger asChild>
-            <button className="flex items-center gap-2 rounded-md border border-border bg-card px-3 py-2 text-sm font-medium text-foreground hover:bg-secondary transition-colors">
-              <span>
-                {filters.locations.length === 0
-                  ? "All locations"
-                  : `${filters.locations.length} location${filters.locations.length > 1 ? "s" : ""}`}
-              </span>
-              <ChevronDown className="size-3.5 text-muted-foreground" />
-            </button>
-          </PopoverTrigger>
-          <PopoverContent className="w-56 p-2" align="start">
-            <div className="flex flex-col gap-1">
-              {LOCATIONS.map((loc) => (
-                <label
-                  key={loc}
-                  className="flex items-center gap-2.5 rounded-md px-2 py-1.5 text-sm hover:bg-secondary cursor-pointer transition-colors"
-                >
-                  <Checkbox
-                    checked={filters.locations.includes(loc)}
-                    onCheckedChange={() => toggleLocation(loc)}
-                    className="size-3.5"
-                  />
-                  {loc}
-                </label>
-              ))}
-            </div>
-          </PopoverContent>
-        </Popover>
+        {/* Location text search */}
+        <div className="relative">
+          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground pointer-events-none" />
+          <input
+            type="text"
+            placeholder="Location in Luxembourg…"
+            value={filters.locationQuery}
+            onChange={(e) => onFiltersChange({ ...filters, locationQuery: e.target.value })}
+            className="h-9 w-52 rounded-md border border-border bg-card pl-8 pr-3 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:ring-2 focus:ring-ring/50 transition-shadow"
+          />
+        </div>
 
         {/* Airbnb Score slider */}
         <div className="flex items-center gap-2.5 rounded-md border border-border bg-card px-3 py-2">

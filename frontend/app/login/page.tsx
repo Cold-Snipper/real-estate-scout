@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { createClient } from "@/lib/supabase/client"
 
 export default function LoginPage() {
   const router = useRouter()
@@ -15,23 +16,26 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setLoading(true)
     setError(null)
 
     const formData = new FormData(e.currentTarget)
     const email = formData.get("email") as string
+    const password = formData.get("password") as string
 
-    // Mock auth: demo@immosnippy.com is the approved demo account
-    setTimeout(() => {
-      if (email === "demo@immosnippy.com") {
-        router.push("/")
-      } else {
-        setLoading(false)
-        setError("Your account is pending approval. An administrator will review your request shortly.")
-      }
-    }, 800)
+    const supabase = createClient()
+    const { error: authError } = await supabase.auth.signInWithPassword({ email, password })
+
+    if (authError) {
+      setError(authError.message)
+      setLoading(false)
+      return
+    }
+
+    router.push("/")
+    router.refresh()
   }
 
   return (
@@ -111,9 +115,6 @@ export default function LoginPage() {
                   {loading ? "Signing in..." : "Sign in"}
                 </Button>
 
-                <p className="text-center text-[11px] text-muted-foreground mt-1">
-                  Demo: use <span className="font-medium text-foreground">demo@immosnippy.com</span> to sign in
-                </p>
               </form>
             </CardContent>
           </Card>

@@ -11,7 +11,14 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 
-function ScoreBadge({ score }: { score: number }) {
+function ScoreBadge({ score }: { score: number | null }) {
+  if (score === null) {
+    return (
+      <span className="inline-flex items-center justify-center rounded-full px-2.5 py-0.5 text-xs font-semibold tabular-nums text-muted-foreground">
+        —
+      </span>
+    )
+  }
   return (
     <span
       className={cn(
@@ -119,13 +126,18 @@ export function ListingTable({
               >
                 <td className="px-4 py-3">
                   <div className="size-10 rounded-md overflow-hidden bg-muted shrink-0">
-                    <Image
-                      src={listing.photo}
-                      alt={listing.address}
-                      width={40}
-                      height={40}
-                      className="size-10 object-cover"
-                    />
+                    {listing.photo ? (
+                      <Image
+                        src={listing.photo}
+                        alt={listing.address}
+                        width={40}
+                        height={40}
+                        className="size-10 object-cover"
+                        unoptimized
+                      />
+                    ) : (
+                      <div className="size-10 bg-muted" />
+                    )}
                   </div>
                 </td>
                 <td className="px-4 py-3">

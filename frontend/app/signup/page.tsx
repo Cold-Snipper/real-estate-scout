@@ -7,22 +7,68 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { createClient } from "@/lib/supabase/client"
 
 export default function SignupPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [email, setEmail] = useState("")
+  const [error, setError] = useState<string | null>(null)
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setLoading(true)
+    setError(null)
+
     const formData = new FormData(e.currentTarget)
-    setEmail(formData.get("email") as string)
-    setTimeout(() => {
+    const emailVal = formData.get("email") as string
+    const password = formData.get("password") as string
+    const firstName = formData.get("firstName") as string
+    const lastName = formData.get("lastName") as string
+    const orgName = formData.get("org") as string
+
+    const supabase = createClient()
+
+    // 1. Create the auth user
+    const { data, error: authError } = await supabase.auth.signUp({
+      email: emailVal,
+      password,
+      options: {
+        data: { first_name: firstName, last_name: lastName },
+      },
+    })
+
+    if (authError) {
+      setError(authError.message)
       setLoading(false)
-      setSubmitted(true)
-    }, 1000)
+      return
+    }
+
+    // 2. Create organization + link profile server-side (service role bypasses RLS)
+    if (data.user) {
+      const res = await fetch("/api/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: data.user.id,
+          orgName,
+          firstName,
+          lastName,
+        }),
+      })
+
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}))
+        setError(body.error ?? "Failed to set up your account. Please contact support.")
+        setLoading(false)
+        return
+      }
+    }
+
+    setEmail(emailVal)
+    setLoading(false)
+    setSubmitted(true)
   }
 
   if (submitted) {
@@ -114,6 +160,11 @@ export default function SignupPage() {
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+                {error && (
+                  <div className="rounded-lg border border-destructive/30 bg-destructive/8 px-3.5 py-3">
+                    <p className="text-sm text-destructive">{error}</p>
+                  </div>
+                )}
                 <div className="flex flex-col gap-2">
                   <Label htmlFor="org">Organization name</Label>
                   <Input

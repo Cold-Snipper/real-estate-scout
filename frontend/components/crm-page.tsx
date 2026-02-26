@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import {
   Users, Building2, MessageSquare, Phone, Mail, Search,
   ChevronRight, X, Plus, Star, TrendingUp, BarChart3,
@@ -18,8 +18,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import {
-  crmOwners as initialOwners,
-  crmConversations,
   SALES_STAGES,
   CHATBOT_STAGES,
   CHANNELS,
@@ -474,7 +472,9 @@ function ContactProfilePanel({ owner, onClose }: { owner: CrmOwner; onClose: () 
   const [ownerTab, setOwnerTab] = useState<"properties" | "contact">("properties")
 
   const properties = owner.properties
-  const conversations = selectedProperty ? crmConversations[selectedProperty.id] ?? [] : []
+  const conversations: CrmConversation[] = selectedProperty
+    ? ((selectedProperty as CrmProperty & { conversations?: CrmConversation[] }).conversations ?? [])
+    : []
 
   return (
     <div className="flex flex-col h-full">
@@ -745,7 +745,55 @@ function ProcessFlow() {
 
 // ── Add Contact Dialog ──────────────────────────────────────────────────────
 
-function AddContactDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
+function AddContactDialog({
+  open,
+  onClose,
+  onSuccess,
+}: {
+  open: boolean
+  onClose: () => void
+  onSuccess: (owner: CrmOwner) => void
+}) {
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setSaving(true)
+    setError(null)
+
+    const fd = new FormData(e.currentTarget)
+    const body = {
+      email: fd.get("email") as string,
+      name: fd.get("name") as string,
+      phone: fd.get("phone") as string,
+      notes: fd.get("notes") as string,
+      property: {
+        listing_url: fd.get("listing_url") as string,
+        price: fd.get("price") as string,
+        rooms: fd.get("rooms") as string,
+        city: fd.get("city") as string,
+      },
+    }
+
+    const res = await fetch("/api/crm", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    })
+
+    const data = await res.json().catch(() => ({}))
+    setSaving(false)
+
+    if (!res.ok) {
+      setError(data.error ?? "Failed to add contact")
+      return
+    }
+
+    onSuccess(data.owner as CrmOwner)
+    onClose()
+  }
+
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
       <DialogContent className="max-w-md bg-card">
@@ -755,34 +803,41 @@ function AddContactDialog({ open, onClose }: { open: boolean; onClose: () => voi
           </DialogTitle>
         </DialogHeader>
         <p className="text-xs text-muted-foreground">Email is mandatory. If adding a property, Source URL is required.</p>
-        <form className="space-y-3 mt-2" onSubmit={(e) => { e.preventDefault(); onClose() }}>
-          {[
-            { label: "Email *", placeholder: "contact@example.com", type: "email", required: true },
-            { label: "Name", placeholder: "Full name", type: "text" },
-            { label: "Phone", placeholder: "+352 ...", type: "tel" },
-          ].map((f) => (
-            <div key={f.label}>
-              <label className="text-xs font-medium text-muted-foreground">{f.label}</label>
-              <input type={f.type} required={f.required} placeholder={f.placeholder} className="w-full mt-1 text-sm px-3 py-2 rounded-lg border border-border bg-background" />
-            </div>
-          ))}
+        {error && (
+          <p className="text-xs text-destructive rounded-md border border-destructive/30 bg-destructive/8 px-3 py-2">{error}</p>
+        )}
+        <form className="space-y-3 mt-2" onSubmit={handleSubmit}>
+          <div>
+            <label className="text-xs font-medium text-muted-foreground">Email *</label>
+            <input name="email" type="email" required placeholder="contact@example.com" className="w-full mt-1 text-sm px-3 py-2 rounded-lg border border-border bg-background" />
+          </div>
+          <div>
+            <label className="text-xs font-medium text-muted-foreground">Name</label>
+            <input name="name" type="text" placeholder="Full name" className="w-full mt-1 text-sm px-3 py-2 rounded-lg border border-border bg-background" />
+          </div>
+          <div>
+            <label className="text-xs font-medium text-muted-foreground">Phone</label>
+            <input name="phone" type="tel" placeholder="+352 ..." className="w-full mt-1 text-sm px-3 py-2 rounded-lg border border-border bg-background" />
+          </div>
           <div>
             <label className="text-xs font-medium text-muted-foreground">Internal Notes</label>
-            <textarea rows={2} className="w-full mt-1 text-sm px-3 py-2 rounded-lg border border-border bg-background resize-none" />
+            <textarea name="notes" rows={2} className="w-full mt-1 text-sm px-3 py-2 rounded-lg border border-border bg-background resize-none" />
           </div>
           <div className="border-t border-border pt-3">
             <p className="text-xs text-muted-foreground font-medium mb-2">Optional: First Property</p>
             <div className="space-y-2">
-              <input type="url" placeholder="Source URL (listing URL)" className="w-full text-sm px-3 py-2 rounded-lg border border-border bg-background" />
+              <input name="listing_url" type="url" placeholder="Source URL (listing URL)" className="w-full text-sm px-3 py-2 rounded-lg border border-border bg-background" />
               <div className="grid grid-cols-3 gap-2">
-                <input type="number" placeholder="Price" className="text-sm px-3 py-2 rounded-lg border border-border bg-background" />
-                <input type="number" placeholder="Beds" className="text-sm px-3 py-2 rounded-lg border border-border bg-background" />
-                <input type="text" placeholder="City" className="text-sm px-3 py-2 rounded-lg border border-border bg-background" />
+                <input name="price" type="number" placeholder="Price" className="text-sm px-3 py-2 rounded-lg border border-border bg-background" />
+                <input name="rooms" type="number" placeholder="Rooms" className="text-sm px-3 py-2 rounded-lg border border-border bg-background" />
+                <input name="city" type="text" placeholder="City" className="text-sm px-3 py-2 rounded-lg border border-border bg-background" />
               </div>
             </div>
           </div>
           <div className="flex gap-2 pt-1">
-            <Button type="submit" className="flex-1">Add Contact</Button>
+            <Button type="submit" className="flex-1" disabled={saving}>
+              {saving ? "Adding…" : "Add Contact"}
+            </Button>
             <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
           </div>
         </form>
@@ -800,7 +855,14 @@ const MAIN_TABS = [
 ]
 
 export function CrmDashboard() {
-  const [ownerList] = useState<CrmOwner[]>(initialOwners)
+  const [ownerList, setOwnerList] = useState<CrmOwner[]>([])
+
+  useEffect(() => {
+    fetch("/api/crm")
+      .then((r) => r.json())
+      .then((data) => setOwnerList(data.owners ?? []))
+      .catch(console.error)
+  }, [])
   const [selectedOwner, setSelectedOwner] = useState<CrmOwner | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
   const [filterStage, setFilterStage] = useState("")
@@ -1034,7 +1096,11 @@ export function CrmDashboard() {
         </div>
       )}
 
-      <AddContactDialog open={addOwnerOpen} onClose={() => setAddOwnerOpen(false)} />
+      <AddContactDialog
+        open={addOwnerOpen}
+        onClose={() => setAddOwnerOpen(false)}
+        onSuccess={(newOwner) => setOwnerList((prev) => [newOwner, ...prev])}
+      />
     </div>
   )
 }

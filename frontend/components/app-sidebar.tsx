@@ -1,9 +1,11 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { Building2, Sparkles, Search, Users, Settings } from "lucide-react"
+import { usePathname, useRouter } from "next/navigation"
+import { Building2, Sparkles, Search, Users, Settings, LogOut } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { createClient } from "@/lib/supabase/client"
 
 const navItems = [
   { label: "Fresh Listings", icon: Sparkles, href: "/" },
@@ -14,6 +16,32 @@ const navItems = [
 
 export function AppSidebar() {
   const pathname = usePathname()
+  const router = useRouter()
+  const [displayName, setDisplayName] = useState("")
+  const [email, setEmail] = useState("")
+  const [initials, setInitials] = useState("…")
+
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) return
+      const first = user.user_metadata?.first_name ?? ""
+      const last = user.user_metadata?.last_name ?? ""
+      const name = `${first} ${last}`.trim()
+      setDisplayName(name || (user.email ?? ""))
+      setEmail(user.email ?? "")
+      const ini = first && last
+        ? `${first.charAt(0)}${last.charAt(0)}`.toUpperCase()
+        : ((user.email) || "?").charAt(0).toUpperCase()
+      setInitials(ini)
+    })
+  }, [])
+
+  const handleSignOut = async () => {
+    const supabase = createClient()
+    await supabase.auth.signOut()
+    router.push("/login")
+  }
 
   return (
     <aside className="flex h-screen w-60 flex-col bg-sidebar text-sidebar-foreground border-r border-sidebar-border shrink-0">
@@ -49,13 +77,20 @@ export function AppSidebar() {
 
       <div className="mt-auto border-t border-sidebar-border px-4 py-4">
         <div className="flex items-center gap-3">
-          <div className="flex items-center justify-center size-8 rounded-full bg-primary text-xs font-bold text-primary-foreground">
-            JR
+          <div className="flex items-center justify-center size-8 rounded-full bg-primary text-xs font-bold text-primary-foreground shrink-0">
+            {initials}
           </div>
-          <div className="flex flex-col">
-            <span className="text-xs font-medium text-sidebar-foreground">Julia Reyes</span>
-            <span className="text-[11px] text-sidebar-muted">Acquisition Lead</span>
+          <div className="flex flex-col min-w-0 flex-1">
+            <span className="text-xs font-medium text-sidebar-foreground truncate">{displayName}</span>
+            <span className="text-[11px] text-sidebar-muted truncate">{email}</span>
           </div>
+          <button
+            onClick={handleSignOut}
+            className="text-sidebar-muted hover:text-sidebar-foreground transition-colors p-1 shrink-0"
+            aria-label="Sign out"
+          >
+            <LogOut className="size-3.5" />
+          </button>
         </div>
       </div>
     </aside>

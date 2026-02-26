@@ -1,7 +1,8 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import Image from "next/image"
-import { ExternalLink, MapPin, BedDouble, Maximize2, Calendar, Sparkles } from "lucide-react"
+import { ExternalLink, MapPin, BedDouble, Maximize2, Calendar, Sparkles, Check, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { type Listing, type ListingStatus } from "@/lib/listings-data"
 import { Button } from "@/components/ui/button"
@@ -62,14 +63,59 @@ export function ListingDrawer({
   onOpenChange,
   onStatusChange,
 }: ListingDrawerProps) {
+  const [approving, setApproving] = useState(false)
+  const [approved, setApproved] = useState(false)
+
+  // Reset state when the drawer opens for a different listing
+  useEffect(() => {
+    setApproving(false)
+    setApproved(false)
+  }, [listing?.id])
+
   if (!listing) return null
 
+  const score = listing.airbnbScore
   const overallScoreColor =
-    listing.airbnbScore >= 7.5
-      ? "text-score-green"
-      : listing.airbnbScore >= 5
-        ? "text-score-orange"
-        : "text-score-red"
+    score == null
+      ? "text-muted-foreground"
+      : score >= 7.5
+        ? "text-score-green"
+        : score >= 5
+          ? "text-score-orange"
+          : "text-score-red"
+
+  async function handleApprove() {
+    setApproving(true)
+    try {
+      const res = await fetch("/api/outreach", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          address: listing!.address,
+          location: listing!.location,
+          price: listing!.price,
+          rooms: listing!.beds,
+          listing_url: listing!.listing_url ?? null,
+        }),
+      })
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}))
+        console.error("[ListingDrawer] outreach failed:", body)
+        return
+      }
+      onStatusChange(listing!.id, "Reviewing")
+      setApproved(true)
+    } catch (err) {
+      console.error("[ListingDrawer] outreach:", err)
+    } finally {
+      setApproving(false)
+    }
+  }
+
+  function handlePass() {
+    onStatusChange(listing!.id, "Passed")
+    onOpenChange(false)
+  }
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -86,12 +132,19 @@ export function ListingDrawer({
           <div className="flex flex-col">
             {/* Hero image */}
             <div className="relative aspect-[16/10] w-full bg-muted">
-              <Image
-                src={listing.photo.replace("w=200&h=200", "w=800&h=500")}
-                alt={listing.address}
-                fill
-                className="object-cover"
-              />
+              {listing.photo ? (
+                <Image
+                  src={listing.photo.replace("w=200&h=200", "w=800&h=500")}
+                  alt={listing.address}
+                  fill
+                  className="object-cover"
+                  unoptimized
+                />
+              ) : (
+                <div className="absolute inset-0 flex items-center justify-center text-muted-foreground text-sm">
+                  No photo
+                </div>
+              )}
             </div>
 
             {/* Property info */}
@@ -142,50 +195,75 @@ export function ListingDrawer({
                 </div>
               </div>
 
-              {/* AI Score Breakdown */}
-              <div className="flex flex-col gap-4">
-                <div className="flex items-center gap-2">
-                  <Sparkles className="size-4 text-primary" />
-                  <h3 className="text-sm font-semibold text-foreground">
-                    AI Score Breakdown
-                  </h3>
-                  <span className={cn("ml-auto text-xl font-bold tabular-nums", overallScoreColor)}>
-                    {listing.airbnbScore.toFixed(1)}
-                  </span>
-                </div>
+              {/* AI Score Breakdown — only shown when score data is available */}
+              {score != null && (
+                <div className="flex flex-col gap-4">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="size-4 text-primary" />
+                    <h3 className="text-sm font-semibold text-foreground">
+                      AI Score Breakdown
+                    </h3>
+                    <span className={cn("ml-auto text-xl font-bold tabular-nums", overallScoreColor)}>
+                      {score.toFixed(1)}
+                    </span>
+                  </div>
 
-                <div className="flex flex-col gap-5">
-                  {listing.aiBreakdown.map((dim) => (
-                    <ScoreBar
-                      key={dim.label}
-                      label={dim.label}
-                      score={dim.score}
-                      reasoning={dim.reasoning}
-                    />
-                  ))}
+                  <div className="flex flex-col gap-5">
+                    {listing.aiBreakdown.map((dim) => (
+                      <ScoreBar
+                        key={dim.label}
+                        label={dim.label}
+                        score={dim.score}
+                        reasoning={dim.reasoning}
+                      />
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
         </ScrollArea>
 
         {/* Footer actions */}
         <div className="flex items-center gap-3 border-t border-border p-4 bg-card">
-          <Button variant="outline" className="flex-1 gap-2" asChild>
-            <a href="#" target="_blank" rel="noopener noreferrer">
-              <ExternalLink className="size-3.5" />
-              View listing
-            </a>
-          </Button>
-          <Button
-            className="flex-1"
-            onClick={() => {
-              onStatusChange(listing.id, "Contacted")
-              onOpenChange(false)
-            }}
-          >
-            Mark as Contacted
-          </Button>
+          {approved ? (
+            <>
+              <div className="flex items-center gap-2 text-sm text-emerald-600 dark:text-emerald-400 flex-1">
+                <Check className="size-4 shrink-0" />
+                Queued for outreach — check CRM
+              </div>
+              <Button variant="outline" onClick={() => onOpenChange(false)}>
+                Close
+              </Button>
+            </>
+          ) : (
+            <>
+              {listing.listing_url && (
+                <Button variant="outline" size="sm" className="gap-1.5 shrink-0" asChild>
+                  <a href={listing.listing_url} target="_blank" rel="noopener noreferrer">
+                    <ExternalLink className="size-3.5" />
+                    View
+                  </a>
+                </Button>
+              )}
+              <Button
+                variant="ghost"
+                className="flex-1 gap-1.5 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                onClick={handlePass}
+                disabled={approving}
+              >
+                <X className="size-3.5" />
+                Pass
+              </Button>
+              <Button
+                className="flex-1 gap-1.5"
+                onClick={handleApprove}
+                disabled={approving}
+              >
+                {approving ? "Queuing…" : "Approve for outreach"}
+              </Button>
+            </>
+          )}
         </div>
       </SheetContent>
     </Sheet>

@@ -2,18 +2,20 @@ export type ListingSource = "athome" | "immotop"
 
 export interface AvailableListing {
   id: string
-  photo: string
+  photo: string | null
   title: string
   address: string
   location: string
   price: number
   rooms: number
   sqm: number
-  buildingYear: number
-  source: ListingSource
+  buildingYear: number | null
+  source: string
   daysAvailable: number
   description: string
   features: string[]
+  listing_url: string | null
+  listing_ref: string | null
 }
 
 export const AVAILABLE_LOCATIONS = [
