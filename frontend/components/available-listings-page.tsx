@@ -172,8 +172,8 @@ export function AvailableListingsPage() {
     fetch("/api/settings")
       .then((r) => r.json())
       .then((data) => {
-        if (data.preferences?.fresh_max_hours) {
-          setAvailableMinHours(Number(data.preferences.fresh_max_hours))
+        if (data.preferences?.available_min_hours) {
+          setAvailableMinHours(Number(data.preferences.available_min_hours))
         }
         if (data.preferences?.available_filters) {
           setFilters({ ...defaultFilters, ...data.preferences.available_filters })

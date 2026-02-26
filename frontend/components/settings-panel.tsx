@@ -471,11 +471,30 @@ function NotificationsTab() {
   )
 }
 
+type TeamMember = { id: string; first_name: string; last_name: string }
+type PendingInvite = { email: string; created_at: string }
+
 function TeamTab() {
   const [inviteEmail, setInviteEmail] = useState("")
   const [inviting, setInviting] = useState(false)
   const [inviteError, setInviteError] = useState<string | null>(null)
   const [inviteSent, setInviteSent] = useState(false)
+  const [members, setMembers] = useState<TeamMember[]>([])
+  const [pending, setPending] = useState<PendingInvite[]>([])
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null)
+
+  const loadTeam = () => {
+    fetch("/api/team")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.members) setMembers(data.members)
+        if (data.pending) setPending(data.pending)
+        if (data.currentUserId) setCurrentUserId(data.currentUserId)
+      })
+      .catch(console.error)
+  }
+
+  useEffect(() => { loadTeam() }, [])
 
   const sendInvite = async () => {
     if (!inviteEmail) return
@@ -497,39 +516,73 @@ function TeamTab() {
       setInviteSent(true)
       setInviteEmail("")
       setTimeout(() => setInviteSent(false), 4000)
+      loadTeam()
     }
   }
 
   return (
     <div className="flex flex-col gap-6">
       <SectionCard title="Team Members" description="Manage who has access to your Immo Snippy workspace.">
-        <div className="flex flex-col gap-3">
-          <span className="text-sm font-medium text-foreground">Invite team member</span>
-          <div className="flex gap-3">
-            <Input
-              placeholder="colleague@company.com"
-              type="email"
-              className="flex-1"
-              value={inviteEmail}
-              onChange={(e) => { setInviteEmail(e.target.value); setInviteError(null) }}
-              onKeyDown={(e) => e.key === "Enter" && sendInvite()}
-            />
-            <Button onClick={sendInvite} disabled={inviting || !inviteEmail}>
-              {inviting ? "Sending…" : "Send invite"}
-            </Button>
+        <div className="flex flex-col gap-4">
+          {/* Member list */}
+          {(members.length > 0 || pending.length > 0) && (
+            <div className="flex flex-col gap-1">
+              {members.map((m) => (
+                <div key={m.id} className="flex items-center gap-3 py-1.5">
+                  <div className="flex items-center justify-center size-7 rounded-full bg-muted text-xs font-medium text-muted-foreground shrink-0">
+                    {(m.first_name?.[0] ?? "?").toUpperCase()}
+                  </div>
+                  <span className="text-sm text-foreground">
+                    {m.first_name} {m.last_name}
+                    {m.id === currentUserId && (
+                      <span className="ml-1.5 text-xs text-muted-foreground">(you)</span>
+                    )}
+                  </span>
+                </div>
+              ))}
+              {pending.map((p) => (
+                <div key={p.email} className="flex items-center gap-3 py-1.5">
+                  <div className="flex items-center justify-center size-7 rounded-full bg-muted text-xs font-medium text-muted-foreground shrink-0">
+                    ?
+                  </div>
+                  <span className="text-sm text-muted-foreground">
+                    {p.email}
+                    <span className="ml-1.5 text-xs">— invite pending</span>
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Invite form */}
+          <div className="flex flex-col gap-3">
+            <span className="text-sm font-medium text-foreground">Invite team member</span>
+            <div className="flex gap-3">
+              <Input
+                placeholder="colleague@company.com"
+                type="email"
+                className="flex-1"
+                value={inviteEmail}
+                onChange={(e) => { setInviteEmail(e.target.value); setInviteError(null) }}
+                onKeyDown={(e) => e.key === "Enter" && sendInvite()}
+              />
+              <Button onClick={sendInvite} disabled={inviting || !inviteEmail}>
+                {inviting ? "Sending…" : "Send invite"}
+              </Button>
+            </div>
+            {inviteError && (
+              <div className="flex items-center gap-1.5 text-xs text-destructive">
+                <AlertCircle className="size-3.5" />
+                {inviteError}
+              </div>
+            )}
+            {inviteSent && (
+              <div className="flex items-center gap-1.5 text-xs text-score-green">
+                <CheckCircle2 className="size-3.5" />
+                Invite sent successfully
+              </div>
+            )}
           </div>
-          {inviteError && (
-            <div className="flex items-center gap-1.5 text-xs text-destructive">
-              <AlertCircle className="size-3.5" />
-              {inviteError}
-            </div>
-          )}
-          {inviteSent && (
-            <div className="flex items-center gap-1.5 text-xs text-score-green">
-              <CheckCircle2 className="size-3.5" />
-              Invite sent successfully
-            </div>
-          )}
         </div>
       </SectionCard>
     </div>

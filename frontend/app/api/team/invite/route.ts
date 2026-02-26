@@ -24,28 +24,65 @@ export async function POST(request: NextRequest) {
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     )
 
-    // Look up inviter's org so we can record it in team_invites
-    const { data: inviterProfile } = await supabase
+    // Look up inviter's org using adminClient (bypasses RLS) so we can record it in team_invites.
+    // Do this before sending the email so we fail early if the org is missing.
+    const { data: inviterProfile, error: profileError } = await adminClient
       .from("profiles")
       .select("organization_id")
       .eq("id", user.id)
       .single()
 
-    // Generate the invite link without triggering Supabase's own email.
-    // redirectTo points to /auth/invite so the hash token lands on a page
-    // that can process it (middleware can't see URL hashes server-side).
+    if (profileError || !inviterProfile?.organization_id) {
+      console.error("[/api/team/invite] inviter profile lookup failed:", profileError?.message)
+      return NextResponse.json(
+        { error: "Your account is not linked to an organization. Please contact support." },
+        { status: 400 }
+      )
+    }
+
+    // Pre-create the invited user with email_confirm: true.
+    // This prevents Supabase from sending a "Confirm signup" email when
+    // generateLink creates the user below. The error is ignored if the
+    // user already exists (e.g. re-invite after expiry).
+    const { error: preCreateError } = await adminClient.auth.admin.createUser({
+      email,
+      email_confirm: true,
+    })
+    if (preCreateError && !preCreateError.message.toLowerCase().includes("exist")) {
+      console.warn("[/api/team/invite] pre-create warning:", preCreateError.message)
+    }
+
+    // Generate a magic link for the pre-confirmed user.
+    // We use type:"magiclink" because the user was already created above with
+    // email_confirm:true; generateLink type:"invite" returns 422 for confirmed users.
     const origin = new URL(request.url).origin
     const { data: linkData, error: linkError } = await adminClient.auth.admin.generateLink({
-      type: "invite",
+      type: "magiclink",
       email,
       options: { redirectTo: `${origin}/auth/invite` },
     })
 
     if (linkError) return NextResponse.json({ error: linkError.message }, { status: 400 })
 
-    const inviteUrl = linkData?.properties?.action_link
-    if (!inviteUrl) {
+    const actionLink = linkData?.properties?.action_link
+    if (!actionLink) {
       return NextResponse.json({ error: "Failed to generate invite link" }, { status: 500 })
+    }
+
+    // Extract the one-time token from Supabase's action_link and build our own
+    // invite URL. This avoids the Supabase redirect-URL allowlist check entirely:
+    // instead of letting Supabase redirect (which falls back to Site URL when the
+    // redirectTo isn't allowlisted), we send the user directly to our page with
+    // the token as a query param, and verify it there with supabase.auth.verifyOtp.
+    let inviteUrl = actionLink
+    try {
+      const actionUrl = new URL(actionLink)
+      const token = actionUrl.searchParams.get("token")
+      if (token) {
+        inviteUrl = `${origin}/auth/invite?token=${encodeURIComponent(token)}&type=magiclink`
+      }
+    } catch {
+      // Malformed action_link — fall back to the raw Supabase URL
     }
 
     // Send via Resend from aisthetics.org
@@ -78,16 +115,18 @@ export async function POST(request: NextRequest) {
     }
 
     // Record the pending invite so /api/signup/invited can look up the org
-    if (inviterProfile?.organization_id) {
-      const { error: inviteInsertError } = await adminClient.from("team_invites").insert({
-        email,
-        organization_id: inviterProfile.organization_id,
-        invited_by: user.id,
-        status: "pending",
-      })
-      if (inviteInsertError) {
-        console.error("[/api/team/invite] team_invites insert error:", inviteInsertError)
-      }
+    const { error: inviteInsertError } = await adminClient.from("team_invites").insert({
+      email,
+      organization_id: inviterProfile.organization_id,
+      invited_by: user.id,
+      status: "pending",
+    })
+    if (inviteInsertError) {
+      console.error("[/api/team/invite] team_invites insert error:", inviteInsertError)
+      return NextResponse.json(
+        { error: `Invite email sent but failed to record invite: ${inviteInsertError.message}` },
+        { status: 500 }
+      )
     }
 
     return NextResponse.json({ ok: true })
