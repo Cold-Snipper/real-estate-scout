@@ -31,8 +31,18 @@ export async function middleware(request: NextRequest) {
 
   const { pathname } = request.nextUrl
 
-  // Public routes — always accessible
-  if (pathname.startsWith("/login") || pathname.startsWith("/signup") || pathname.startsWith("/api/")) {
+  // Auth routes — redirect to app if already logged in
+  if (pathname.startsWith("/login") || pathname.startsWith("/signup")) {
+    if (user) {
+      const url = request.nextUrl.clone()
+      url.pathname = "/"
+      return NextResponse.redirect(url)
+    }
+    return supabaseResponse
+  }
+
+  // Always public
+  if (pathname.startsWith("/auth/") || pathname.startsWith("/api/")) {
     return supabaseResponse
   }
 

@@ -1,10 +1,16 @@
 "use client"
 
 import { useState, useMemo, useRef, useEffect } from "react"
+import dynamic from "next/dynamic"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { ListingFilters } from "@/components/listing-filters"
+
+// Loaded client-only: Radix Select generates IDs that differ between SSR and CSR
+const ListingFilters = dynamic(
+  () => import("@/components/listing-filters").then((m) => ({ default: m.ListingFilters })),
+  { ssr: false }
+)
 import { ListingTable } from "@/components/listing-table"
 import { ListingDrawer } from "@/components/listing-drawer"
 import { useListings } from "@/lib/listing-context"
@@ -39,6 +45,19 @@ export function Dashboard() {
   const [page, setPage] = useState(0)
   const [selectedListing, setSelectedListing] = useState<Listing | null>(null)
   const [drawerOpen, setDrawerOpen] = useState(false)
+  const saveFiltersRef = useRef<ReturnType<typeof setTimeout>>(undefined)
+
+  // Load saved filters from DB on mount
+  useEffect(() => {
+    fetch("/api/settings")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.preferences?.fresh_filters) {
+          setFilters({ ...defaultFilters, ...data.preferences.fresh_filters })
+        }
+      })
+      .catch(console.error)
+  }, [])
 
   // Reset to first page when filters change
   const prevFiltersRef = useRef(filters)
@@ -48,6 +67,18 @@ export function Dashboard() {
       prevFiltersRef.current = filters
     }
   }, [filters])
+
+  const handleFiltersChange = (f: Filters) => {
+    setFilters(f)
+    clearTimeout(saveFiltersRef.current)
+    saveFiltersRef.current = setTimeout(() => {
+      fetch("/api/settings", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ preferences: { fresh_filters: f } }),
+      }).catch(console.error)
+    }, 1000)
+  }
 
   const newTodayCount = listingData.filter(
     (l) => l.status === "New" && l.daysOnMarket === 0
@@ -110,7 +141,7 @@ export function Dashboard() {
         <div className="flex flex-col gap-5">
           <ListingFilters
             filters={filters}
-            onFiltersChange={setFilters}
+            onFiltersChange={handleFiltersChange}
             matchCount={filteredListings.length}
           />
 

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import Image from "next/image"
 import { X, Search, MapPin, Calendar, ExternalLink, Ruler, DoorOpen, Building, ChevronDown, ChevronLeft, ChevronRight, Check } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
@@ -34,7 +34,6 @@ import {
   type ListingSource,
 } from "@/lib/available-listings-data"
 import { PAGE_SIZE, AVAILABLE_LISTINGS_MIN_HOURS } from "@/lib/config"
-import { createClient } from "@/lib/supabase/client"
 
 /* ───── Filter state ───── */
 interface Filters {
@@ -100,6 +99,7 @@ export function AvailableListingsPage() {
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(true)
   const [filters, setFilters] = useState<Filters>(defaultFilters)
+  const saveFiltersRef = useRef<ReturnType<typeof setTimeout>>(undefined)
   const [page, setPage] = useState(0)
   const [selectedListing, setSelectedListing] = useState<AvailableListing | null>(null)
   const [drawerOpen, setDrawerOpen] = useState(false)
@@ -167,14 +167,19 @@ export function AvailableListingsPage() {
     }
   }
 
-  // Read user's preferred cutoff from Supabase user_metadata
+  // Read user's preferred cutoff + saved filters from DB
   useEffect(() => {
-    const supabase = createClient()
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user?.user_metadata?.available_min_hours) {
-        setAvailableMinHours(Number(user.user_metadata.available_min_hours))
-      }
-    })
+    fetch("/api/settings")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.preferences?.fresh_max_hours) {
+          setAvailableMinHours(Number(data.preferences.fresh_max_hours))
+        }
+        if (data.preferences?.available_filters) {
+          setFilters({ ...defaultFilters, ...data.preferences.available_filters })
+        }
+      })
+      .catch(console.error)
   }, [])
 
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
@@ -200,8 +205,16 @@ export function AvailableListingsPage() {
   }, [filters, page, availableMinHours, fetchListings])
 
   const updateFilters = (next: Filters) => {
-    setPage(0)          // reset to first page on any filter change
+    setPage(0)
     setFilters(next)
+    clearTimeout(saveFiltersRef.current)
+    saveFiltersRef.current = setTimeout(() => {
+      fetch("/api/settings", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ preferences: { available_filters: next } }),
+      }).catch(console.error)
+    }, 1000)
   }
 
   const hasActiveFilters =

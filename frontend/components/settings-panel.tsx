@@ -220,14 +220,14 @@ function PreferencesTab() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    const supabase = createClient()
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user?.user_metadata) {
-        // Use fresh_max_hours; fall back to available_min_hours for older accounts
-        const hours = user.user_metadata.fresh_max_hours ?? user.user_metadata.available_min_hours ?? 72
-        setFreshMaxHours(String(hours))
-      }
-    })
+    fetch("/api/settings")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.preferences?.fresh_max_hours) {
+          setFreshMaxHours(String(data.preferences.fresh_max_hours))
+        }
+      })
+      .catch(console.error)
   }, [])
 
   const save = async () => {
@@ -239,14 +239,14 @@ function PreferencesTab() {
     setSaving(true)
     setError(null)
     setSaved(false)
-    const supabase = createClient()
-    // Save as both keys so both pages pick it up without code changes
-    const { error: err } = await supabase.auth.updateUser({
-      data: { fresh_max_hours: hours, available_min_hours: hours },
+    const res = await fetch("/api/settings", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ preferences: { fresh_max_hours: hours } }),
     })
     setSaving(false)
-    if (err) {
-      setError(err.message)
+    if (!res.ok) {
+      setError("Failed to save. Please try again.")
     } else {
       setSaved(true)
       setTimeout(() => setSaved(false), 3000)

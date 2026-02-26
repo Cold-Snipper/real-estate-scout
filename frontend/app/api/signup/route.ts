@@ -16,10 +16,15 @@ export async function POST(request: NextRequest) {
 
     const supabase = createAdminClient()
 
+    // Generate a URL-safe slug from the org name, appending a short random suffix
+    // to avoid collisions (slug is NOT NULL UNIQUE in the organizations table)
+    const baseSlug = orgName.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")
+    const slug = `${baseSlug}-${Math.random().toString(36).slice(2, 7)}`
+
     // 1. Create organization
     const { data: org, error: orgError } = await supabase
       .from("organizations")
-      .insert({ name: orgName.trim() })
+      .insert({ name: orgName.trim(), slug })
       .select("id")
       .single()
 
@@ -42,6 +47,15 @@ export async function POST(request: NextRequest) {
       console.error("[/api/signup] profile upsert error:", profileError)
       return NextResponse.json({ error: "Failed to create profile" }, { status: 500 })
     }
+
+    // 3. Store company name in user_metadata so Settings → Profile shows it immediately
+    await supabase.auth.admin.updateUserById(userId, {
+      user_metadata: {
+        first_name: firstName ?? "",
+        last_name: lastName ?? "",
+        company: orgName.trim(),
+      },
+    })
 
     return NextResponse.json({ ok: true, organizationId: org.id })
   } catch (err) {

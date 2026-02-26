@@ -24,10 +24,21 @@ export async function POST(request: NextRequest) {
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     )
 
-    // Generate the invite link without triggering Supabase's own email
+    // Look up inviter's org so we can record it in team_invites
+    const { data: inviterProfile } = await supabase
+      .from("profiles")
+      .select("organization_id")
+      .eq("id", user.id)
+      .single()
+
+    // Generate the invite link without triggering Supabase's own email.
+    // redirectTo points to /auth/invite so the hash token lands on a page
+    // that can process it (middleware can't see URL hashes server-side).
+    const origin = new URL(request.url).origin
     const { data: linkData, error: linkError } = await adminClient.auth.admin.generateLink({
       type: "invite",
       email,
+      options: { redirectTo: `${origin}/auth/invite` },
     })
 
     if (linkError) return NextResponse.json({ error: linkError.message }, { status: 400 })
@@ -64,6 +75,19 @@ export async function POST(request: NextRequest) {
     if (emailError) {
       console.error("[/api/team/invite] Resend error:", emailError)
       return NextResponse.json({ error: "Failed to send invite email" }, { status: 500 })
+    }
+
+    // Record the pending invite so /api/signup/invited can look up the org
+    if (inviterProfile?.organization_id) {
+      const { error: inviteInsertError } = await adminClient.from("team_invites").insert({
+        email,
+        organization_id: inviterProfile.organization_id,
+        invited_by: user.id,
+        status: "pending",
+      })
+      if (inviteInsertError) {
+        console.error("[/api/team/invite] team_invites insert error:", inviteInsertError)
+      }
     }
 
     return NextResponse.json({ ok: true })

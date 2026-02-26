@@ -11,15 +11,17 @@ export async function GET() {
 
     const { data: profile } = await supabase
       .from("profiles")
-      .select("*")
+      .select("*, organizations(name)")
       .eq("id", user.id)
       .single()
+
+    const orgName = (profile?.organizations as { name?: string } | null)?.name
 
     return NextResponse.json({
       profile: {
         first_name: profile?.first_name ?? user.user_metadata?.first_name ?? "",
         last_name: profile?.last_name ?? user.user_metadata?.last_name ?? "",
-        company: profile?.company ?? user.user_metadata?.company ?? "",
+        company: orgName ?? user.user_metadata?.company ?? "",
         email: user.email,
         role: profile?.role ?? "",
       },

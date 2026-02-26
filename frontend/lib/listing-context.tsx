@@ -2,7 +2,6 @@
 
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react"
 import { type Listing, type ListingStatus } from "@/lib/listings-data"
-import { createClient } from "@/lib/supabase/client"
 import { FRESH_LISTINGS_MAX_HOURS } from "@/lib/config"
 
 interface ListingContextValue {
@@ -19,14 +18,16 @@ export function ListingProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true)
   const [freshMaxHours, setFreshMaxHours] = useState(FRESH_LISTINGS_MAX_HOURS)
 
-  // 1. Read user's preferred cutoff from Supabase user_metadata
+  // 1. Read user's preferred cutoff from user_preferences DB
   useEffect(() => {
-    const supabase = createClient()
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user?.user_metadata?.fresh_max_hours) {
-        setFreshMaxHours(Number(user.user_metadata.fresh_max_hours))
-      }
-    })
+    fetch("/api/settings")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.preferences?.fresh_max_hours) {
+          setFreshMaxHours(Number(data.preferences.fresh_max_hours))
+        }
+      })
+      .catch(console.error)
   }, [])
 
   // 2. Fetch listings once freshMaxHours is known
