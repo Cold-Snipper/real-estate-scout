@@ -18,115 +18,23 @@ except ImportError:
 MAX_DOC_CHARS = 6000
 MAX_DOCUMENTS_TOTAL_CHARS = 18000
 
-# Option value -> human-readable label (so the LLM sees informative text, not raw values)
-DROPDOWN_LABELS = {
-    "primary_service_package": {
-        "full_done_for_you": "Full done-for-you management (pricing, guests, cleaning, compliance)",
-        "cohosting_only": "Co-hosting only (guest communication + optimization)",
-        "setup_launch_only": "Setup & launch only (listing + first 90 days)",
-        "revenue_optimization_only": "Revenue optimization only (dynamic pricing + calendar)",
-        "legal_compliance_specialist": "Legal & compliance specialist package",
-    },
-    "offer_structure": {
-        "percentage_revenue": "Percentage of revenue (most common)",
-        "flat_monthly": "Flat monthly fee per property",
-        "hybrid": "Hybrid (base fee + percentage)",
-        "performance_based": "Performance-based (you only get paid on results)",
-        "tiered_value": "Tiered pricing based on property value",
-    },
-    "communication_tone": {
-        "professional_trustworthy": "Professional and trustworthy",
-        "friendly_approachable": "Friendly and approachable",
-        "luxurious_premium": "Luxurious and premium",
-        "direct_results": "Direct and results-oriented",
-        "empathetic_supportive": "Empathetic and supportive",
-        "calm_expert": "Calm and expert",
-    },
-    "call_ask_style": {
-        "very_direct": "Very direct (“Let's book a call now”)",
-        "gentle_qualification": "Gentle qualification first",
-        "value_first_soft_ask": "Value-first then soft ask",
-        "calendly_immediately": "Always offer Calendly link immediately",
-    },
-    "target_owner_type": {
-        "busy_professionals_expat": "Busy professionals and expats",
-        "investors_portfolio": "Real estate investors and portfolio owners",
-        "retirees_second_home": "Retirees and second-home owners",
-        "first_time_hosts": "First-time hosts",
-        "inherited_owners": "Inherited property owners",
-        "corporate_landlords": "Corporate landlords",
-    },
-    "preferred_property_type": {
-        "urban_apartments": "Urban apartments (high turnover)",
-        "family_houses_villas": "Family houses and villas",
-        "luxury_unique": "Luxury / unique properties",
-        "rural_countryside": "Rural or countryside homes",
-        "studio_small": "Studio / small apartments",
-        "no_preference": "No strong preference",
-    },
-    "pricing_model": {
-        "20_25_percent": "20–25% of booking revenue",
-        "15_20_percent": "15–20% of booking revenue",
-        "flat_monthly": "Flat monthly fee per property",
-        "hybrid": "Hybrid (base + percentage)",
-        "performance_based_min": "Performance-based minimum",
-    },
-    "onboarding_fee": {
-        "yes_fixed": "Yes, fixed amount",
-        "yes_percentage_first": "Yes, percentage of first month",
-        "no_waived": "No, waived for good properties",
-        "case_by_case": "Case by case",
-    },
-    "when_offer_call": {
-        "after_first_reply": "Immediately after first reply",
-        "after_audit": "After sending audit report",
-        "strong_interest": "Only after strong interest shown",
-        "never_auto": "Never automatically (manual follow-up)",
-    },
-    "tone_style": {
-        "professional_trustworthy": "Professional and trustworthy",
-        "friendly_approachable": "Friendly and approachable",
-        "luxurious_premium": "Luxurious and premium",
-        "direct_results": "Direct and results-oriented",
-        "empathetic_supportive": "Empathetic and supportive",
-        "calm_expert": "Calm and expert",
-    },
-}
+# Full expanded schema (80 fields) — use extended options from expanded_options.py
+try:
+    from .expanded_options import DROPDOWN_LABELS as EXPANDED_DROPDOWN_LABELS
+    from .expanded_options import AGENCY_EXT_LABELS as EXPANDED_AGENCY_EXT_LABELS
+except ImportError:
+    EXPANDED_DROPDOWN_LABELS = {}
+    EXPANDED_AGENCY_EXT_LABELS = {}
 
-# Human-readable labels for agency_context_ext keys (so the LLM sees clear instructions)
-AGENCY_EXT_LABELS = {
-    "long_description": "Long description of company (what you tell owners)",
-    "properties_managed": "Number of properties managed",
-    "main_office": "Main office / hub city",
-    "primary_service_package": "Primary service package",
-    "offer_structure": "Core offer structure",
-    "revenue_guarantee": "Offer revenue guarantee",
-    "photography_included": "Include photography and listing optimization as standard",
-    "legal_compliance_handled": "Handle all legal registration and compliance",
-    "furnished_setup_addon": "Provide furnished property setup as add-on",
-    "communication_tone": "Primary communication tone",
-    "call_ask_style": "How direct to be when asking for a call",
-    "social_proof_first": "Always mention social proof in first messages",
-    "enlarge_pie": "Focus heavily on enlarging the pie",
-    "risk_reversal_early": "Emphasize risk reversal and guarantees early",
-    "warm_language_cold": "Use warm personal language in cold messages",
-    "pain_points": "Ideal owner pain points",
-    "results_highlight": "Results to highlight to owners",
-    "onboarding_fee": "Charge onboarding / setup fee",
-    "mention_fee_early": "Mention fee structure early",
-    "emphasize_pie_early": "Emphasize you keep 75–80% of a much larger pie",
-    "first_month_discount": "Offer reduced first-month fee as closing tool",
-    "when_offer_call": "When should the AI offer a call",
-    "call_phrasing": "Exact phrasing when asking for a call",
-    "mention_guarantee_always": "Always mention revenue guarantee",
-    "eu_compliance_highlight": "Highlight EU compliance and legal protection",
-    "try_risk_free_framing": "Offer try risk-free framing in most messages",
-    "local_presence_24_7": "Mention local presence / 24/7 support",
-    "avoid_competitors": "Never mention competitors",
-    "countries_special_rules": "Countries or cities to treat differently",
-    "strict_rules": "Strict rules the AI must always follow",
-    "additional_notes_ai": "Additional notes or guidelines for the AI",
+# Legacy dropdown labels for root columns (tone_style, ideal_client_profile, etc.)
+LEGACY_DROPDOWN_LABELS = {
+    "tone_style": EXPANDED_DROPDOWN_LABELS.get("primary_tone", {}),
+    "target_owner_type": EXPANDED_DROPDOWN_LABELS.get("target_owner_type", {}),
+    "preferred_property_type": EXPANDED_DROPDOWN_LABELS.get("property_type_focus", {}),
+    "ideal_client_profile": EXPANDED_DROPDOWN_LABELS.get("target_owner_type", {}),
 }
+DROPDOWN_LABELS = {**EXPANDED_DROPDOWN_LABELS, **LEGACY_DROPDOWN_LABELS}
+AGENCY_EXT_LABELS = EXPANDED_AGENCY_EXT_LABELS
 
 
 def _format_agency_ext(ext: dict) -> str:

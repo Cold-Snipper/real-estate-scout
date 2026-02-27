@@ -3,28 +3,37 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Operator Onboarding — Immo Snippy</title>
+  <title>Operator Onboarding (Full 80-field) — Immo Snippy</title>
   <style>
-    body { font-family: system-ui, sans-serif; max-width: 560px; margin: 2rem auto; padding: 0 1rem; }
+    body { font-family: system-ui, sans-serif; max-width: 680px; margin: 2rem auto; padding: 0 1rem; }
     h1 { font-size: 1.25rem; }
     .step { display: none; }
     .step.active { display: block; }
     .progress { margin: 1rem 0; height: 6px; background: #eee; border-radius: 3px; }
-    .progress div { height: 100%; width: 33%; background: #333; border-radius: 3px; transition: width .2s; }
-    .progress.step-2 div { width: 66%; }
-    .progress.step-3 div { width: 100%; }
+    .progress div { height: 100%; background: #333; border-radius: 3px; transition: width .2s; }
+    .progress.step-1 div { width: 12.5%; }
+    .progress.step-2 div { width: 25%; }
+    .progress.step-3 div { width: 37.5%; }
+    .progress.step-4 div { width: 50%; }
+    .progress.step-5 div { width: 62.5%; }
+    .progress.step-6 div { width: 75%; }
+    .progress.step-7 div { width: 87.5%; }
+    .progress.step-8 div { width: 100%; }
     label { display: block; margin-top: 0.75rem; font-weight: 500; }
+    label input[type="checkbox"] { margin-right: 0.5rem; }
     input, select, textarea { width: 100%; padding: 0.5rem; margin-top: 0.25rem; box-sizing: border-box; }
     textarea { min-height: 80px; }
     button { margin-top: 1rem; padding: 0.6rem 1.2rem; cursor: pointer; }
     .btns { display: flex; gap: 0.5rem; margin-top: 1rem; }
     .err { color: #c00; font-size: 0.9rem; margin-top: 0.5rem; }
     .ok { color: #080; font-size: 0.9rem; margin-top: 0.5rem; }
+    .section { margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #eee; }
+    .section h3 { font-size: 1rem; margin-bottom: 0.5rem; }
   </style>
 </head>
 <body>
-  <h1>Operator Onboarding</h1>
-  <p>3-step form → POST /api/operators. Use for testing when the main React app is not available.</p>
+  <h1>Operator Onboarding — Full Expanded Schema (80 fields)</h1>
+  <p>8-step form → POST /api/operators. All fields stored in agency_context_ext.</p>
   <div class="progress step-1" id="progress"><div></div></div>
 
   <form id="form">
@@ -32,80 +41,388 @@
       <h2>Step 1 — Company basics</h2>
       <label>Company name *</label>
       <input name="company_name" required />
-      <label>Website URL</label>
-      <input name="website_url" type="url" placeholder="https://..." />
+      <label>Website URL *</label>
+      <input name="website_url" type="url" placeholder="https://..." required />
       <label>Tagline</label>
       <input name="tagline" />
       <label>Countries (e.g. LU, FR)</label>
       <input name="countries" placeholder="LU, FR" />
-      <div class="btns">
-        <button type="button" onclick="go(2)">Next</button>
-      </div>
+      <label>Calendly link</label>
+      <input name="calendly_link" type="url" placeholder="https://calendly.com/..." />
+      <div class="btns"><button type="button" onclick="go(2)">Next</button></div>
     </div>
 
     <div class="step" id="step2">
-      <h2>Step 2 — 5 dropdowns</h2>
-      <label>Tone / communication style</label>
-      <select name="tone_style">
+      <h2>Step 2 — Outreach toggles (20)</h2>
+      <div class="section">
+        <label><input type="checkbox" name="ext_mention_guarantee_in_messages" value="1"> Mention guarantee in messages</label>
+        <label><input type="checkbox" name="ext_include_social_proof_first_2" value="1"> Include social proof in first 2 messages</label>
+        <label><input type="checkbox" name="ext_offer_free_audit_opener" value="1"> Offer free audit/report in opener</label>
+        <label><input type="checkbox" name="ext_send_calendly_first_message" value="1"> Send Calendly link in first message</label>
+        <label><input type="checkbox" name="ext_use_risk_reversal_phrasing" value="1"> Use risk reversal phrasing</label>
+        <label><input type="checkbox" name="ext_focus_outcome_over_fee" value="1"> Focus on outcome over fee %</label>
+        <label><input type="checkbox" name="ext_mention_eu_compliance" value="1"> Mention EU compliance when relevant</label>
+        <label><input type="checkbox" name="ext_emphasize_warm_tone" value="1"> Emphasize warm tone in cold outreach</label>
+        <label><input type="checkbox" name="ext_enlarge_the_pie_every_reply" value="1"> Enlarge the pie in every reply</label>
+        <label><input type="checkbox" name="ext_start_with_empathy" value="1"> Start with empathy for owner's pain</label>
+        <label><input type="checkbox" name="ext_highlight_zero_effort" value="1"> Always highlight zero effort for owner</label>
+        <label><input type="checkbox" name="ext_performance_guarantee_language" value="1"> Use performance-based guarantee language</label>
+        <label><input type="checkbox" name="ext_mention_local_24_7" value="1"> Mention local presence / 24/7 support</label>
+        <label><input type="checkbox" name="ext_avoid_competitors" value="1"> Avoid mentioning competitors</label>
+        <label><input type="checkbox" name="ext_offer_30_days_reduced_fee" value="1"> Offer first 30 days reduced fee as closing tool</label>
+        <label><input type="checkbox" name="ext_host_success_kit_bonus" value="1"> Include Host Success Kit as bonus in follow-ups</label>
+        <label><input type="checkbox" name="ext_use_scarcity_phrasing" value="1"> Use scarcity phrasing</label>
+        <label><input type="checkbox" name="ext_focus_passive_income_every_message" value="1"> Focus on passive income in every message</label>
+        <label><input type="checkbox" name="ext_mention_no_tenant_drama_openers" value="1"> Mention no tenant drama in openers</label>
+        <label><input type="checkbox" name="ext_always_end_with_next_step" value="1"> Always end with clear next step (call or audit)</label>
+      </div>
+      <div class="btns"><button type="button" onclick="go(1)">Back</button><button type="button" onclick="go(3)">Next</button></div>
+    </div>
+
+    <div class="step" id="step3">
+      <h2>Step 3 — Reporting toggles (10)</h2>
+      <div class="section">
+        <label><input type="checkbox" name="ext_allow_export_property_csv" value="1"> Allow export of all property information (CSV)</label>
+        <label><input type="checkbox" name="ext_allow_export_owner_csv" value="1"> Allow export of all owner information (CSV)</label>
+        <label><input type="checkbox" name="ext_allow_export_chat_history" value="1"> Allow export of all chat history (CSV or ZIP)</label>
+        <label><input type="checkbox" name="ext_track_compliance_per_property" value="1"> Track compliance status per property</label>
+        <label><input type="checkbox" name="ext_require_owner_consent_before_scraping" value="1"> Require owner consent before scraping</label>
+        <label><input type="checkbox" name="ext_log_every_ai_message_audit" value="1"> Log every AI message sent for audit trail</label>
+        <label><input type="checkbox" name="ext_notify_when_interested" value="1"> Notify when conversation reaches Interested</label>
+        <label><input type="checkbox" name="ext_notify_when_call_booked" value="1"> Notify when call is booked</label>
+        <label><input type="checkbox" name="ext_notify_when_contract_signed" value="1"> Notify when contract is signed</label>
+        <label><input type="checkbox" name="ext_allow_manual_override_viability_score" value="1"> Allow manual override of AI viability score</label>
+      </div>
+      <div class="btns"><button type="button" onclick="go(2)">Back</button><button type="button" onclick="go(4)">Next</button></div>
+    </div>
+
+    <div class="step" id="step4">
+      <h2>Step 4 — Negotiation dropdowns (2.1–2.15)</h2>
+      <label>Primary tone</label>
+      <select name="ext_primary_tone">
+        <option value="">—</option>
         <option value="professional_trustworthy">Professional and trustworthy</option>
         <option value="friendly_approachable">Friendly and approachable</option>
         <option value="luxurious_premium">Luxurious and premium</option>
         <option value="direct_results">Direct and results-oriented</option>
         <option value="empathetic_supportive">Empathetic and supportive</option>
-        <option value="calm_expert">Calm and expert</option>
       </select>
-      <label>Target owner type (ideal client)</label>
-      <select name="ideal_client_profile">
-        <option value="busy_professionals_expat">Busy professionals and expats</option>
-        <option value="investors_portfolio">Real estate investors and portfolio owners</option>
-        <option value="retirees_second_home">Retirees and second-home owners</option>
+      <label>Target owner type</label>
+      <select name="ext_target_owner_type">
+        <option value="">—</option>
+        <option value="busy_professionals_expat">Busy professionals / expats</option>
+        <option value="investors_portfolio">Real estate investors / portfolio owners</option>
+        <option value="retirees_second_home">Retirees / second-home owners</option>
         <option value="first_time_hosts">First-time hosts</option>
         <option value="inherited_owners">Inherited property owners</option>
-        <option value="corporate_landlords">Corporate landlords</option>
       </select>
-      <label>Preferred property type</label>
-      <select name="preferred_property_types">
-        <option value="urban_apartments">Urban apartments (high turnover)</option>
-        <option value="family_houses_villas">Family houses and villas</option>
+      <label>Property type focus</label>
+      <select name="ext_property_type_focus">
+        <option value="">—</option>
+        <option value="urban_apartments">Urban apartments</option>
+        <option value="family_houses_villas">Family houses / villas</option>
         <option value="luxury_unique">Luxury / unique properties</option>
-        <option value="rural_countryside">Rural or countryside homes</option>
-        <option value="studio_small">Studio / small apartments</option>
+        <option value="rural_countryside">Rural / countryside homes</option>
         <option value="no_preference">No strong preference</option>
       </select>
-      <label>Pricing model</label>
-      <select name="pricing_model">
-        <option value="20_25_percent">20–25% of booking revenue</option>
-        <option value="15_20_percent">15–20% of booking revenue</option>
-        <option value="flat_monthly">Flat monthly fee per property</option>
+      <label>Fee structure</label>
+      <select name="ext_fee_structure">
+        <option value="">—</option>
+        <option value="20_25_percent">20–25% commission</option>
+        <option value="15_20_percent">15–20% commission</option>
+        <option value="flat_monthly">Flat monthly fee</option>
         <option value="hybrid">Hybrid (base + percentage)</option>
         <option value="performance_based_min">Performance-based minimum</option>
       </select>
-      <label>Primary service package</label>
-      <select name="primary_service_package">
-        <option value="full_done_for_you">Full done-for-you management</option>
-        <option value="cohosting_only">Co-hosting only</option>
-        <option value="setup_launch_only">Setup & launch only</option>
-        <option value="revenue_optimization_only">Revenue optimization only</option>
-        <option value="legal_compliance_specialist">Legal & compliance specialist</option>
+      <label>Call booking preference</label>
+      <select name="ext_call_booking_preference">
+        <option value="">—</option>
+        <option value="15_min_first">15-min call first</option>
+        <option value="30_min_discovery">30-min discovery call</option>
+        <option value="qualify_then_call">Qualify then offer call</option>
+        <option value="audit_before_call">Send audit before asking for call</option>
+        <option value="never_auto_call">Never mention call automatically</option>
       </select>
-      <div class="btns">
-        <button type="button" onclick="go(1)">Back</button>
-        <button type="button" onclick="go(3)">Next</button>
-      </div>
+      <label>Risk reversal style</label>
+      <select name="ext_risk_reversal_style">
+        <option value="">—</option>
+        <option value="strong_guarantee">Strong guarantee</option>
+        <option value="soft_guarantee">Soft guarantee</option>
+        <option value="trial_period">Trial period</option>
+        <option value="no_guarantee">No guarantee</option>
+      </select>
+      <label>Social proof emphasis</label>
+      <select name="ext_social_proof_emphasis">
+        <option value="">—</option>
+        <option value="heavy">Heavy</option>
+        <option value="medium">Medium</option>
+        <option value="light">Light</option>
+      </select>
+      <label>Objection handling style</label>
+      <select name="ext_objection_handling_style">
+        <option value="">—</option>
+        <option value="value_add">Value-add</option>
+        <option value="empathy_proof">Empathy + proof</option>
+        <option value="direct_counter">Direct counter</option>
+        <option value="enlarge_the_pie">Enlarge the pie</option>
+      </select>
+      <label>Urgency / scarcity style</label>
+      <select name="ext_urgency_scarcity_style">
+        <option value="">—</option>
+        <option value="strong">Strong</option>
+        <option value="medium">Medium</option>
+        <option value="light">Light</option>
+      </select>
+      <label>Compliance mention</label>
+      <select name="ext_compliance_mention">
+        <option value="">—</option>
+        <option value="always">Always mention</option>
+        <option value="if_asked">If asked</option>
+        <option value="never">Never</option>
+      </select>
+      <label>Bonus stack priority</label>
+      <select name="ext_bonus_stack_priority">
+        <option value="">—</option>
+        <option value="photography_first">Photography first</option>
+        <option value="profit_audit_first">Profit audit first</option>
+        <option value="reduced_first_month_first">Reduced first month first</option>
+      </select>
+      <label>Message length preference</label>
+      <select name="ext_message_length_preference">
+        <option value="">—</option>
+        <option value="short_direct">Short & direct</option>
+        <option value="medium_150_250">Medium (150–250 words)</option>
+        <option value="longer_value_bomb">Longer (value bomb style)</option>
+      </select>
+      <label>Follow-up frequency</label>
+      <select name="ext_follow_up_frequency">
+        <option value="">—</option>
+        <option value="aggressive">Aggressive (every 2–3 days)</option>
+        <option value="balanced">Balanced (every 5–7 days)</option>
+        <option value="conservative">Conservative (every 10+ days)</option>
+      </select>
+      <label>Objection rebuttal style</label>
+      <select name="ext_objection_rebuttal_style">
+        <option value="">—</option>
+        <option value="add_value">Add more value</option>
+        <option value="social_proof">Use social proof</option>
+        <option value="enlarge_the_pie">Enlarge the pie</option>
+        <option value="risk_reversal">Risk reversal</option>
+      </select>
+      <div class="btns"><button type="button" onclick="go(3)">Back</button><button type="button" onclick="go(5)">Next</button></div>
     </div>
 
-    <div class="step" id="step3">
-      <h2>Step 3 — Links & notes</h2>
-      <label>Calendly link</label>
-      <input name="calendly_link" type="url" placeholder="https://calendly.com/..." />
-      <label>Qualification rules (text)</label>
+    <div class="step" id="step5">
+      <h2>Step 5 — Negotiation dropdowns (2.16–2.25)</h2>
+      <label>First message style</label>
+      <select name="ext_first_message_style">
+        <option value="">—</option>
+        <option value="pain_plus_offer">Pain + offer</option>
+        <option value="value_bomb_first">Value bomb first</option>
+        <option value="question_empathy">Question + empathy</option>
+        <option value="direct_benefit">Direct benefit</option>
+      </select>
+      <label>Follow-up tone</label>
+      <select name="ext_follow_up_tone">
+        <option value="">—</option>
+        <option value="persistent_polite">Persistent but polite</option>
+        <option value="gentle_reminder">Gentle reminder</option>
+        <option value="value_reemphasis">Value re-emphasis</option>
+        <option value="urgency_increase">Urgency increase</option>
+      </select>
+      <label>Closing style</label>
+      <select name="ext_closing_style">
+        <option value="">—</option>
+        <option value="direct_ask_call">Direct ask for call</option>
+        <option value="soft_calendly">Soft Calendly link</option>
+        <option value="free_audit_first">Offer free audit first</option>
+        <option value="risk_reversal_close">Risk reversal close</option>
+      </select>
+      <label>Email vs Messenger style</label>
+      <select name="ext_email_vs_messenger_style">
+        <option value="">—</option>
+        <option value="formal_email">Formal for email</option>
+        <option value="casual_messenger">Casual for Messenger</option>
+        <option value="same_both">Same style for both</option>
+      </select>
+      <label>Photo mention</label>
+      <select name="ext_photo_mention">
+        <option value="">—</option>
+        <option value="always">Always mention</option>
+        <option value="only_if_asked">Only if asked</option>
+        <option value="never">Never</option>
+      </select>
+      <label>Revenue projection style</label>
+      <select name="ext_revenue_projection_style">
+        <option value="">—</option>
+        <option value="conservative">Conservative</option>
+        <option value="optimistic">Optimistic</option>
+        <option value="range_only">Range only</option>
+      </select>
+      <label>Legal mention</label>
+      <select name="ext_legal_mention">
+        <option value="">—</option>
+        <option value="always">Always</option>
+        <option value="when_relevant">When relevant</option>
+        <option value="never">Never</option>
+      </select>
+      <label>Bonus emphasis</label>
+      <select name="ext_bonus_emphasis">
+        <option value="">—</option>
+        <option value="heavy">Heavy</option>
+        <option value="light">Light</option>
+        <option value="none">None</option>
+      </select>
+      <label>Call to action strength</label>
+      <select name="ext_call_to_action_strength">
+        <option value="">—</option>
+        <option value="strong">Strong</option>
+        <option value="medium">Medium</option>
+        <option value="soft">Soft</option>
+      </select>
+      <label>Primary negotiation style</label>
+      <select name="ext_primary_negotiation_style">
+        <option value="">—</option>
+        <option value="enlarge_the_pie">Enlarge the Pie</option>
+        <option value="value_add">Value-Add</option>
+        <option value="empathy_proof">Empathy + Proof</option>
+        <option value="direct_counter">Direct Counter</option>
+        <option value="risk_reversal_first">Risk Reversal First</option>
+      </select>
+      <label>Call booking aggressiveness</label>
+      <select name="ext_call_booking_aggressiveness">
+        <option value="">—</option>
+        <option value="very_aggressive">Very aggressive</option>
+        <option value="balanced">Balanced</option>
+        <option value="gentle">Gentle</option>
+        <option value="very_gentle">Very gentle</option>
+      </select>
+      <div class="btns"><button type="button" onclick="go(4)">Back</button><button type="button" onclick="go(6)">Next</button></div>
+    </div>
+
+    <div class="step" id="step6">
+      <h2>Step 6 — Reporting & workflow dropdowns (2.26–2.35)</h2>
+      <label>Export format preference</label>
+      <select name="ext_export_format_preference">
+        <option value="">—</option>
+        <option value="csv">CSV</option>
+        <option value="excel">Excel</option>
+        <option value="json">JSON</option>
+        <option value="pdf_report">PDF report</option>
+      </select>
+      <label>Notification delivery</label>
+      <select name="ext_notification_delivery">
+        <option value="">—</option>
+        <option value="toast_only">In-app toast only</option>
+        <option value="email_toast">Email + toast</option>
+        <option value="whatsapp_toast">WhatsApp + toast</option>
+        <option value="all_channels">All channels</option>
+      </select>
+      <label>Viability certainty threshold</label>
+      <select name="ext_viability_certainty_threshold">
+        <option value="">—</option>
+        <option value="high_8">High (≥8/10)</option>
+        <option value="medium_6">Medium (≥6/10)</option>
+        <option value="low_4">Low (≥4/10)</option>
+        <option value="not_certain">Not Certain (&lt;4/10)</option>
+      </select>
+      <label>Conversation flagging level</label>
+      <select name="ext_conversation_flagging_level">
+        <option value="">—</option>
+        <option value="legal_compliance_only">Legal/compliance only</option>
+        <option value="price_negotiations">Price negotiations</option>
+        <option value="objections">Objections</option>
+        <option value="all_replies">All replies</option>
+      </select>
+      <label>Automation level</label>
+      <select name="ext_automation_level">
+        <option value="">—</option>
+        <option value="fully_auto">Fully auto</option>
+        <option value="semi_auto">Semi-auto</option>
+        <option value="manual_review_before_send">Manual review before send</option>
+        <option value="manual_only">Manual only</option>
+      </select>
+      <label>Pipeline movement trigger</label>
+      <select name="ext_pipeline_movement_trigger">
+        <option value="">—</option>
+        <option value="auto_on_reply">Auto on reply</option>
+        <option value="auto_on_positive_reply">Auto on positive reply</option>
+        <option value="manual_only">Manual only</option>
+        <option value="ai_suggest_user_confirm">AI suggested, user confirms</option>
+      </select>
+      <label>Bulk action default</label>
+      <select name="ext_bulk_action_default">
+        <option value="">—</option>
+        <option value="send_same_message">Send same message</option>
+        <option value="mark_contacted">Mark as Contacted</option>
+        <option value="export_selected">Export selected</option>
+        <option value="delete_selected">Delete selected</option>
+      </select>
+      <label>Report frequency</label>
+      <select name="ext_report_frequency">
+        <option value="">—</option>
+        <option value="daily_summary">Daily summary</option>
+        <option value="weekly_summary">Weekly summary</option>
+        <option value="on_demand_only">On-demand only</option>
+      </select>
+      <label>Data retention policy</label>
+      <select name="ext_data_retention_policy">
+        <option value="">—</option>
+        <option value="keep_forever">Keep forever</option>
+        <option value="delete_12_months">Delete after 12 months</option>
+        <option value="delete_24_months">Delete after 24 months</option>
+      </select>
+      <label>Backup preference</label>
+      <select name="ext_backup_preference">
+        <option value="">—</option>
+        <option value="daily_local">Daily local backup</option>
+        <option value="weekly_local">Weekly local backup</option>
+        <option value="manual_only">Manual only</option>
+      </select>
+      <div class="btns"><button type="button" onclick="go(5)">Back</button><button type="button" onclick="go(7)">Next</button></div>
+    </div>
+
+    <div class="step" id="step7">
+      <h2>Step 7 — Agency text fields (existing + ext)</h2>
+      <label>Qualification rules (what must be true before AI offers a call)</label>
       <textarea name="qualification_rules" placeholder="e.g. Always offer 15-min call first"></textarea>
-      <label>Notes</label>
+      <label>Notes (additional notes for the AI)</label>
       <textarea name="notes"></textarea>
-      <div class="btns">
-        <button type="button" onclick="go(2)">Back</button>
-        <button type="submit">Save → POST /api/operators</button>
-      </div>
+      <label>Long company description</label>
+      <textarea name="ext_long_company_description" placeholder="Describe your company, mission, how you work with owners..."></textarea>
+      <label>Properties managed count</label>
+      <input name="ext_properties_managed_count" placeholder="e.g. 120" />
+      <label>Main hub city</label>
+      <input name="ext_main_hub_city" placeholder="e.g. Luxembourg City" />
+      <label>Ideal owner pain points</label>
+      <textarea name="ext_ideal_owner_pain_points" placeholder="e.g. No time, fear of regulations"></textarea>
+      <label>Results to highlight</label>
+      <input name="ext_results_to_highlight" placeholder="e.g. 2.3× income in first year" />
+      <label>Call booking phrasing</label>
+      <input name="ext_call_booking_phrasing" placeholder="Exact phrasing when asking for a call" />
+      <label>Countries/cities to treat differently</label>
+      <textarea name="ext_countries_cities_different" placeholder="e.g. Germany: more formal tone"></textarea>
+      <label>Strict rules AI must always follow</label>
+      <textarea name="ext_strict_rules" placeholder="e.g. Never promise exact revenue numbers"></textarea>
+      <label>Ideal close rate for discovery calls</label>
+      <input name="ext_ideal_close_rate" placeholder="e.g. 40%" />
+      <label>Target monthly new properties</label>
+      <input name="ext_target_monthly_new_properties" placeholder="e.g. 5" />
+      <label>Avg time to signed contract</label>
+      <input name="ext_avg_time_to_signed_contract" placeholder="e.g. 2–3 weeks" />
+      <label>Biggest competitive advantage</label>
+      <input name="ext_biggest_competitive_advantage" placeholder="e.g. Local 24/7 team" />
+      <label>Biggest weakness or area to avoid</label>
+      <input name="ext_biggest_weakness_avoid" placeholder="e.g. Don't mention our small team size" />
+      <label>Success stories / case studies</label>
+      <textarea name="ext_success_stories_case_studies" placeholder="e.g. Luxembourg City 2.3× case study"></textarea>
+      <div class="btns"><button type="button" onclick="go(6)">Back</button><button type="button" onclick="go(8)">Next</button></div>
+    </div>
+
+    <div class="step" id="step8">
+      <h2>Step 8 — Review & Submit</h2>
+      <p>All fields collected. Click Save to POST /api/operators.</p>
+      <div class="btns"><button type="button" onclick="go(7)">Back</button><button type="submit">Save → POST /api/operators</button></div>
     </div>
   </form>
 
@@ -124,21 +441,30 @@
       const msg = document.getElementById('message');
       msg.textContent = '';
       const fd = new FormData(this);
-      const primary_service_package = fd.get('primary_service_package');
       const body = {
         company_name: fd.get('company_name'),
         website_url: fd.get('website_url') || undefined,
         tagline: fd.get('tagline') || undefined,
         countries: fd.get('countries') || undefined,
-        tone_style: fd.get('tone_style'),
-        ideal_client_profile: fd.get('ideal_client_profile'),
-        preferred_property_types: fd.get('preferred_property_types'),
-        pricing_model: fd.get('pricing_model'),
         qualification_rules: fd.get('qualification_rules') || undefined,
         calendly_link: fd.get('calendly_link') || undefined,
         notes: fd.get('notes') || undefined,
       };
-      if (primary_service_package) body.agency_context_ext = { primary_service_package };
+      const ext = {};
+      document.querySelectorAll('[name^="ext_"]').forEach(el => {
+        const key = el.name.slice(4);
+        if (el.type === 'checkbox') ext[key] = el.checked;
+        else if (el.value) ext[key] = el.value;
+      });
+      // Remove false checkbox values to keep payload smaller (backend default false)
+      Object.keys(ext).forEach(k => { if (ext[k] === false) delete ext[k]; });
+      if (Object.keys(ext).length) {
+        body.agency_context_ext = ext;
+        if (ext.primary_tone) body.tone_style = ext.primary_tone;
+        if (ext.target_owner_type) body.ideal_client_profile = ext.target_owner_type;
+        if (ext.property_type_focus) body.preferred_property_types = ext.property_type_focus;
+        if (ext.fee_structure) body.pricing_model = ext.fee_structure;
+      }
       try {
         const r = await fetch('/api/operators', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
         const data = await r.json().catch(() => ({}));
