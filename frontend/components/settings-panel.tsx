@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import { Camera, Shield, Users, Bell, SlidersHorizontal, CheckCircle2, AlertCircle, Clock } from "lucide-react"
+import { Camera, Shield, Users, Bell, SlidersHorizontal, CheckCircle2, AlertCircle, Clock, Bot, HelpCircle } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
@@ -13,7 +13,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
 
-const TABS = ["Profile", "Preferences", "Scoring", "Notifications", "Team"] as const
+const TABS = ["Profile", "Preferences", "Scoring", "Notifications", "Team", "Personalization"] as const
 type Tab = (typeof TABS)[number]
 
 const TAB_ICONS: Record<Tab, React.ElementType> = {
@@ -22,6 +22,11 @@ const TAB_ICONS: Record<Tab, React.ElementType> = {
   Scoring: SlidersHorizontal,
   Notifications: Bell,
   Team: Users,
+  Personalization: Bot,
+}
+
+const TAB_TOOLTIPS: Partial<Record<Tab, string>> = {
+  Personalization: "Configure your company profile and strategy so the AI can grade listings and generate outreach tailored to your business.",
 }
 
 
@@ -589,6 +594,373 @@ function TeamTab() {
   )
 }
 
+// ── Personalization ───────────────────────────────────────────────────────────
+
+const PROPERTY_TYPES = [
+  { value: "urban_apartments", label: "Urban apartments" },
+  { value: "family_houses_villas", label: "Family houses & villas" },
+  { value: "luxury_unique", label: "Luxury & unique stays" },
+  { value: "rural_countryside", label: "Rural & countryside" },
+  { value: "studio_small", label: "Studios & small units" },
+  { value: "no_preference", label: "No preference" },
+]
+
+const PRICING_MODELS = [
+  { value: "20_25_percent", label: "20–25% of booking revenue" },
+  { value: "15_20_percent", label: "15–20% of booking revenue" },
+  { value: "flat_monthly", label: "Flat monthly fee" },
+  { value: "hybrid", label: "Hybrid (base + percentage)" },
+  { value: "performance_based_min", label: "Performance-based with minimum" },
+]
+
+const TONE_STYLES = [
+  { value: "professional_trustworthy", label: "Professional & trustworthy" },
+  { value: "friendly_approachable", label: "Friendly & approachable" },
+  { value: "luxurious_premium", label: "Luxurious & premium" },
+  { value: "direct_results", label: "Direct & results-focused" },
+  { value: "empathetic_supportive", label: "Empathetic & supportive" },
+  { value: "calm_expert", label: "Calm expert" },
+]
+
+const TARGET_OWNER_TYPES = [
+  { value: "busy_professionals_expat", label: "Busy professionals & expats" },
+  { value: "investors_portfolio", label: "Real estate investors & portfolio owners" },
+  { value: "retirees_second_home", label: "Retirees & second-home owners" },
+  { value: "first_time_hosts", label: "First-time hosts" },
+  { value: "inherited_owners", label: "Inherited property owners" },
+  { value: "corporate_landlords", label: "Corporate landlords" },
+]
+
+const SERVICE_PACKAGES = [
+  { value: "full_done_for_you", label: "Full done-for-you management" },
+  { value: "cohosting_only", label: "Co-hosting only" },
+  { value: "setup_launch_only", label: "Setup & launch only" },
+  { value: "revenue_optimization_only", label: "Revenue optimization only" },
+  { value: "legal_compliance_specialist", label: "Legal & compliance specialist" },
+]
+
+const OFFER_STRUCTURES = [
+  { value: "percentage_revenue", label: "Percentage of revenue" },
+  { value: "flat_monthly", label: "Flat monthly fee per property" },
+  { value: "hybrid", label: "Hybrid (base fee + percentage)" },
+  { value: "performance_based", label: "Performance-based" },
+  { value: "tiered_value", label: "Tiered pricing" },
+]
+
+const CALL_ASK_STYLES = [
+  { value: "very_direct", label: "Very direct — \"Let's book a call now\"" },
+  { value: "gentle_qualification", label: "Gentle qualification first" },
+  { value: "value_first_soft_ask", label: "Value-first, then soft ask" },
+  { value: "calendly_immediately", label: "Always offer Calendly link immediately" },
+]
+
+const WHEN_OFFER_CALL = [
+  { value: "after_first_reply", label: "After first reply" },
+  { value: "after_audit", label: "After sending audit report" },
+  { value: "strong_interest", label: "Only after strong interest shown" },
+  { value: "never_auto", label: "Never automatically" },
+]
+
+const ONBOARDING_FEES = [
+  { value: "yes_fixed", label: "Yes, fixed amount" },
+  { value: "yes_percentage_first", label: "Yes, percentage of first month" },
+  { value: "no_waived", label: "No, waived for good properties" },
+  { value: "case_by_case", label: "Case by case" },
+]
+
+type AgencyExt = {
+  primary_service_package: string
+  offer_structure: string
+  call_ask_style: string
+  when_offer_call: string
+  onboarding_fee: string
+  long_description: string
+  main_office: string
+  properties_managed: string
+  pain_points: string
+  results_highlight: string
+  call_phrasing: string
+  countries_special_rules: string
+  strict_rules: string
+  revenue_guarantee: boolean
+  photography_included: boolean
+  legal_compliance_handled: boolean
+  furnished_setup_addon: boolean
+  social_proof_first: boolean
+  enlarge_pie: boolean
+  risk_reversal_early: boolean
+  warm_language_cold: boolean
+  mention_fee_early: boolean
+  emphasize_pie_early: boolean
+  first_month_discount: boolean
+  mention_guarantee_always: boolean
+  eu_compliance_highlight: boolean
+  try_risk_free_framing: boolean
+  local_presence_24_7: boolean
+  avoid_competitors: boolean
+}
+
+const DEFAULT_AGENCY_EXT: AgencyExt = {
+  primary_service_package: "",
+  offer_structure: "",
+  call_ask_style: "",
+  when_offer_call: "",
+  onboarding_fee: "",
+  long_description: "",
+  main_office: "",
+  properties_managed: "",
+  pain_points: "",
+  results_highlight: "",
+  call_phrasing: "",
+  countries_special_rules: "",
+  strict_rules: "",
+  revenue_guarantee: false,
+  photography_included: false,
+  legal_compliance_handled: false,
+  furnished_setup_addon: false,
+  social_proof_first: false,
+  enlarge_pie: false,
+  risk_reversal_early: false,
+  warm_language_cold: false,
+  mention_fee_early: false,
+  emphasize_pie_early: false,
+  first_month_discount: false,
+  mention_guarantee_always: false,
+  eu_compliance_highlight: false,
+  try_risk_free_framing: false,
+  local_presence_24_7: false,
+  avoid_competitors: false,
+}
+
+const MESSAGING_TOGGLES: Array<{ key: keyof AgencyExt; label: string; description: string }> = [
+  { key: "revenue_guarantee", label: "Revenue guarantee", description: "Offer a revenue guarantee to owners" },
+  { key: "mention_guarantee_always", label: "Always mention guarantee", description: "Reference guarantee in every message" },
+  { key: "photography_included", label: "Photography included", description: "Photography & listing optimization as standard" },
+  { key: "legal_compliance_handled", label: "Handle legal compliance", description: "Handle all legal registration & compliance" },
+  { key: "furnished_setup_addon", label: "Furnished setup add-on", description: "Property furnished setup as a paid add-on" },
+  { key: "social_proof_first", label: "Lead with social proof", description: "Always mention social proof in first messages" },
+  { key: "risk_reversal_early", label: "Risk reversal early", description: "Emphasize guarantees and risk reversal early" },
+  { key: "enlarge_pie", label: "Enlarge the pie", description: "Focus on growing total revenue (not just the %) " },
+  { key: "warm_language_cold", label: "Warm language in cold messages", description: "Use warm personal language in cold outreach" },
+  { key: "mention_fee_early", label: "Mention fees early", description: "Mention fee structure early in conversations" },
+  { key: "emphasize_pie_early", label: "Emphasize net revenue", description: "Emphasize owner keeps 75–80% of a much larger pie" },
+  { key: "first_month_discount", label: "First month discount", description: "Offer reduced first-month fee as a closing tool" },
+  { key: "eu_compliance_highlight", label: "Highlight EU compliance", description: "Highlight EU compliance and legal protection" },
+  { key: "try_risk_free_framing", label: "Risk-free framing", description: "Offer 'try risk-free' framing in messages" },
+  { key: "local_presence_24_7", label: "Local presence & 24/7", description: "Mention local presence and 24/7 support" },
+  { key: "avoid_competitors", label: "Never mention competitors", description: "Strictly avoid mentioning competitor names" },
+]
+
+function PersonalizationTab() {
+  const [criteria, setCriteria] = useState({
+    tagline: "",
+    target_countries: "",
+    website_url: "",
+    services: "",
+    usps: "",
+    ideal_client_profile: "",
+    preferred_property_types: "",
+    min_property_value: "",
+    pricing_model: "",
+    tone_style: "",
+    key_phrases: "",
+    languages: "",
+    calendly_link: "",
+    call_length_minutes: "",
+    qualification_rules: "",
+    custom_rules: "",
+    additional_notes: "",
+  })
+  const [agencyExt, setAgencyExt] = useState<AgencyExt>(DEFAULT_AGENCY_EXT)
+  const [saving, setSaving] = useState(false)
+  const [saved, setSaved] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    fetch("/api/settings")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.criteria) {
+          const c = data.criteria
+          setCriteria({
+            tagline: c.tagline ?? "",
+            target_countries: c.target_countries ?? "",
+            website_url: c.website_url ?? "",
+            services: c.services ?? "",
+            usps: c.usps ?? "",
+            ideal_client_profile: c.ideal_client_profile ?? "",
+            preferred_property_types: c.preferred_property_types ?? "",
+            min_property_value: c.min_property_value ?? "",
+            pricing_model: c.pricing_model ?? "",
+            tone_style: c.tone_style ?? "",
+            key_phrases: c.key_phrases ?? "",
+            languages: c.languages ?? "",
+            calendly_link: c.calendly_link ?? "",
+            call_length_minutes: c.call_length_minutes ?? "",
+            qualification_rules: c.qualification_rules ?? "",
+            custom_rules: c.custom_rules ?? "",
+            additional_notes: c.additional_notes ?? "",
+          })
+          if (c.agency_context_ext && typeof c.agency_context_ext === "object") {
+            setAgencyExt((prev) => ({ ...prev, ...c.agency_context_ext }))
+          }
+        }
+      })
+      .catch(console.error)
+  }, [])
+
+  const save = async () => {
+    setSaving(true)
+    setError(null)
+    const payload: Record<string, unknown> = { ...criteria }
+    if (criteria.min_property_value !== "") payload.min_property_value = Number(criteria.min_property_value)
+    if (criteria.call_length_minutes !== "") payload.call_length_minutes = Number(criteria.call_length_minutes)
+    payload.agency_context_ext = agencyExt
+    const res = await fetch("/api/settings", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ criteria: payload }),
+    })
+    setSaving(false)
+    if (res.ok) {
+      setSaved(true)
+      setTimeout(() => setSaved(false), 3000)
+    } else {
+      const body = await res.json().catch(() => ({}))
+      setError(body.error ?? "Failed to save")
+    }
+  }
+
+  const f = (key: keyof typeof criteria) => ({
+    value: criteria[key] as string,
+    onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
+      setCriteria((prev) => ({ ...prev, [key]: e.target.value })),
+  })
+
+  const ef = (key: keyof AgencyExt) => ({
+    value: agencyExt[key] as string,
+    onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
+      setAgencyExt((prev) => ({ ...prev, [key]: e.target.value })),
+  })
+
+  const sel = "flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+  const ta = "flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring resize-none"
+
+  return (
+    <div className="flex flex-col gap-6">
+
+      {/* Step 1 — Company basics */}
+      <SectionCard title="Company basics" description="Your identity as an operator.">
+        <div className="flex flex-col gap-5">
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="tagline">Tagline</Label>
+            <Input id="tagline" placeholder="e.g. Full done-for-you STR management in Luxembourg" {...f("tagline")} />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="website_url">Website URL</Label>
+              <Input id="website_url" type="url" placeholder="https://yourcompany.com" {...f("website_url")} />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="target_countries">Countries</Label>
+              <Input id="target_countries" placeholder="LU, FR, BE" {...f("target_countries")} />
+            </div>
+          </div>
+        </div>
+      </SectionCard>
+
+      {/* Step 2 — 5 dropdowns */}
+      <SectionCard title="Strategy" description="Five settings that shape how the AI positions your offer.">
+        <div className="flex flex-col gap-5">
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="tone_style">Tone / communication style</Label>
+            <select id="tone_style" className={sel} {...f("tone_style")}>
+              <option value="">Select…</option>
+              {TONE_STYLES.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
+            </select>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="ideal_client_profile">Target owner type (ideal client)</Label>
+            <select id="ideal_client_profile" className={sel} {...f("ideal_client_profile")}>
+              <option value="">Select…</option>
+              {TARGET_OWNER_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
+            </select>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="preferred_property_types">Preferred property type</Label>
+            <select id="preferred_property_types" className={sel} {...f("preferred_property_types")}>
+              <option value="">Select…</option>
+              {PROPERTY_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
+            </select>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="pricing_model">Pricing model</Label>
+            <select id="pricing_model" className={sel} {...f("pricing_model")}>
+              <option value="">Select…</option>
+              {PRICING_MODELS.map((m) => <option key={m.value} value={m.value}>{m.label}</option>)}
+            </select>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="primary_service_package">Primary service package</Label>
+            <select id="primary_service_package" className={sel} {...ef("primary_service_package")}>
+              <option value="">Select…</option>
+              {SERVICE_PACKAGES.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
+            </select>
+          </div>
+        </div>
+      </SectionCard>
+
+      {/* Step 3 — Links & notes */}
+      <SectionCard title="Links & notes" description="Booking link and guidelines for the AI.">
+        <div className="flex flex-col gap-5">
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="calendly_link">Calendly link</Label>
+            <Input id="calendly_link" type="url" placeholder="https://calendly.com/your-link" {...f("calendly_link")} />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="qualification_rules">Qualification rules</Label>
+            <textarea
+              id="qualification_rules"
+              rows={3}
+              placeholder="e.g. Always offer a 15-min call first"
+              className={ta}
+              {...f("qualification_rules")}
+            />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="additional_notes">Notes</Label>
+            <textarea
+              id="additional_notes"
+              rows={3}
+              placeholder="Any extra context for the AI…"
+              className={ta}
+              {...f("additional_notes")}
+            />
+          </div>
+          <div className="flex items-center justify-end gap-3">
+            {error && (
+              <span className="flex items-center gap-1.5 text-xs text-destructive">
+                <AlertCircle className="size-3.5 shrink-0" />
+                {error}
+              </span>
+            )}
+            {saved && (
+              <span className="flex items-center gap-1.5 text-xs text-score-green">
+                <CheckCircle2 className="size-3.5" />
+                Saved
+              </span>
+            )}
+            <Button onClick={save} disabled={saving}>
+              {saving ? "Saving…" : "Save changes"}
+            </Button>
+          </div>
+        </div>
+      </SectionCard>
+
+    </div>
+  )
+}
+
 export function SettingsPanel() {
   const [activeTab, setActiveTab] = useState<Tab>("Profile")
 
@@ -603,19 +975,31 @@ export function SettingsPanel() {
         <nav className="w-52 shrink-0 border-r border-border bg-card px-3 py-5 flex flex-col gap-1">
           {TABS.map((tab) => {
             const Icon = TAB_ICONS[tab]
+            const tooltip = TAB_TOOLTIPS[tab]
             return (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
                 className={cn(
-                  "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors text-left",
+                  "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors text-left w-full",
                   activeTab === tab
                     ? "bg-primary/10 text-primary"
                     : "text-muted-foreground hover:bg-secondary hover:text-foreground"
                 )}
               >
-                <Icon className="size-4" />
-                {tab}
+                <Icon className="size-4 shrink-0" />
+                <span className="flex-1">{tab}</span>
+                {tooltip && (
+                  <span
+                    className="relative group/tip shrink-0"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <HelpCircle className="size-3.5 opacity-40 group-hover/tip:opacity-100 transition-opacity" />
+                    <span className="pointer-events-none absolute left-6 top-1/2 -translate-y-1/2 z-50 w-56 rounded-md border border-border bg-popover px-3 py-2 text-xs text-popover-foreground shadow-md opacity-0 group-hover/tip:opacity-100 transition-opacity">
+                      {tooltip}
+                    </span>
+                  </span>
+                )}
               </button>
             )
           })}
@@ -629,6 +1013,7 @@ export function SettingsPanel() {
             {activeTab === "Scoring" && <ScoringTab />}
             {activeTab === "Notifications" && <NotificationsTab />}
             {activeTab === "Team" && <TeamTab />}
+            {activeTab === "Personalization" && <PersonalizationTab />}
           </div>
         </ScrollArea>
       </div>
