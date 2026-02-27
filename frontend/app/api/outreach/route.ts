@@ -11,7 +11,9 @@ export async function POST(request: NextRequest) {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
-    const { data: profile } = await supabase
+    const admin = createAdminClient()
+
+    const { data: profile } = await admin
       .from("profiles")
       .select("organization_id")
       .eq("id", user.id)
@@ -24,8 +26,6 @@ export async function POST(request: NextRequest) {
     const orgId = profile.organization_id
     const body = await request.json()
     const { address, location, price, rooms, listing_url } = body
-
-    const admin = createAdminClient()
 
     // Placeholder contact representing the agency
     const { data: contact, error: contactError } = await admin
@@ -51,10 +51,11 @@ export async function POST(request: NextRequest) {
       .insert({
         organization_id: orgId,
         contact_id: contact.id,
+        title: address ?? "Untitled property",
         listing_url: listing_url ?? null,
         price: price ? Number(price) : null,
         rooms: rooms ? Number(rooms) : null,
-        city: location ?? null,
+        location: location ?? null,
         address: address ?? null,
         sales_pipeline_stage: "New Lead",
         chatbot_pipeline_stage: "First Message Sent",

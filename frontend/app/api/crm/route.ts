@@ -10,20 +10,22 @@ export async function GET() {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
-    const { data: profile } = await supabase
+    const admin = createAdminClient()
+
+    const { data: profile } = await admin
       .from("profiles")
       .select("organization_id")
       .eq("id", user.id)
       .single()
 
     if (!profile?.organization_id) {
-      return NextResponse.json({ contacts: [] })
+      return NextResponse.json({ owners: [] })
     }
 
     const orgId = profile.organization_id
 
     // Fetch contacts
-    const { data: contacts, error: contactsError } = await supabase
+    const { data: contacts, error: contactsError } = await admin
       .from("contacts")
       .select("*")
       .eq("organization_id", orgId)
@@ -32,8 +34,7 @@ export async function GET() {
     if (contactsError) throw contactsError
 
     // Fetch properties for all contacts
-    const contactIds = (contacts ?? []).map((c) => c.id)
-    const { data: properties, error: propsError } = await supabase
+    const { data: properties, error: propsError } = await admin
       .from("properties")
       .select("*")
       .eq("organization_id", orgId)
@@ -45,7 +46,7 @@ export async function GET() {
     const propertyIds = (properties ?? []).map((p) => p.id)
     let conversations: unknown[] = []
     if (propertyIds.length > 0) {
-      const { data: convData } = await supabase
+      const { data: convData } = await admin
         .from("conversations")
         .select("*")
         .in("property_id", propertyIds)
@@ -110,7 +111,9 @@ export async function POST(request: NextRequest) {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
-    const { data: profile } = await supabase
+    const admin = createAdminClient()
+
+    const { data: profile } = await admin
       .from("profiles")
       .select("organization_id")
       .eq("id", user.id)
@@ -126,8 +129,6 @@ export async function POST(request: NextRequest) {
 
     if (!email) return NextResponse.json({ error: "Email is required" }, { status: 400 })
 
-    const admin = createAdminClient()
-
     // Create contact
     const { data: contact, error: contactError } = await admin
       .from("contacts")
@@ -142,17 +143,18 @@ export async function POST(request: NextRequest) {
 
     // Optionally create first property
     let properties: unknown[] = []
-    if (property?.listing_url || property?.price || property?.city) {
+    if (property?.listing_url || property?.price || property?.location) {
       const { data: prop, error: propError } = await admin
         .from("properties")
         .insert({
           organization_id: orgId,
           contact_id: contact.id,
+          title: property.address ?? property.location ?? "Untitled property",
           listing_url: property.listing_url ?? null,
           price: property.price ? Number(property.price) : null,
           rooms: property.rooms ? Number(property.rooms) : null,
-          city: property.city ?? null,
-          address: property.city ?? null,
+          location: property.location ?? null,
+          address: property.address ?? null,
         })
         .select()
         .single()

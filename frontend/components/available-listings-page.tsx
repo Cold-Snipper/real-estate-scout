@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react"
 import Image from "next/image"
-import { X, Search, MapPin, Calendar, ExternalLink, Ruler, DoorOpen, Building, ChevronDown, ChevronLeft, ChevronRight, Check } from "lucide-react"
+import { X, Search, MapPin, Calendar, ExternalLink, Ruler, DoorOpen, Building, ChevronDown, ChevronLeft, ChevronRight, Check, AlertCircle } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -107,17 +107,20 @@ export function AvailableListingsPage() {
   const [botting, setBotting] = useState(false)
   const [botted, setBotted] = useState(false)
   const [whitelisted, setWhitelisted] = useState(false)
+  const [botError, setBotError] = useState<string | null>(null)
 
   // Reset bot action state when a different listing is selected
   useEffect(() => {
     setBotted(false)
     setBotting(false)
     setWhitelisted(false)
+    setBotError(null)
   }, [selectedListing?.id])
 
   async function handleSendToBot() {
     if (!selectedListing) return
     setBotting(true)
+    setBotError(null)
     try {
       const res = await fetch("/api/outreach", {
         method: "POST",
@@ -132,7 +135,7 @@ export function AvailableListingsPage() {
       })
       if (!res.ok) {
         const body = await res.json().catch(() => ({}))
-        console.error("[AvailableListings] outreach failed:", body)
+        setBotError(body.error ?? "Failed to queue outreach")
         return
       }
       const listingId = selectedListing.listing_ref ?? selectedListing.id
@@ -143,6 +146,7 @@ export function AvailableListingsPage() {
       })
       setBotted(true)
     } catch (err) {
+      setBotError("Failed to queue outreach")
       console.error("[AvailableListings] send to bot:", err)
     } finally {
       setBotting(false)
@@ -643,7 +647,14 @@ export function AvailableListingsPage() {
               </ScrollArea>
 
               {/* Footer */}
-              <div className="flex items-center gap-3 border-t border-border p-4 bg-card">
+              <div className="flex flex-col gap-2 border-t border-border p-4 bg-card">
+                {botError && (
+                  <div className="flex items-center gap-1.5 text-xs text-destructive">
+                    <AlertCircle className="size-3.5 shrink-0" />
+                    {botError}
+                  </div>
+                )}
+                <div className="flex items-center gap-3">
                 {botted || whitelisted ? (
                   <>
                     <div className="flex items-center gap-2 text-sm text-emerald-600 dark:text-emerald-400 flex-1">
@@ -681,6 +692,7 @@ export function AvailableListingsPage() {
                     </Button>
                   </>
                 )}
+                </div>
               </div>
             </>
           )}

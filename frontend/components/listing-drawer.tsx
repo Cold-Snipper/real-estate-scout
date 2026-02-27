@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Image from "next/image"
-import { ExternalLink, MapPin, BedDouble, Maximize2, Calendar, Sparkles, Check, X } from "lucide-react"
+import { ExternalLink, MapPin, BedDouble, Maximize2, Calendar, Sparkles, Check, X, AlertCircle } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { type Listing, type ListingStatus } from "@/lib/listings-data"
 import { Button } from "@/components/ui/button"
@@ -65,11 +65,13 @@ export function ListingDrawer({
 }: ListingDrawerProps) {
   const [approving, setApproving] = useState(false)
   const [approved, setApproved] = useState(false)
+  const [approveError, setApproveError] = useState<string | null>(null)
 
   // Reset state when the drawer opens for a different listing
   useEffect(() => {
     setApproving(false)
     setApproved(false)
+    setApproveError(null)
   }, [listing?.id])
 
   if (!listing) return null
@@ -86,6 +88,7 @@ export function ListingDrawer({
 
   async function handleApprove() {
     setApproving(true)
+    setApproveError(null)
     try {
       const res = await fetch("/api/outreach", {
         method: "POST",
@@ -100,12 +103,13 @@ export function ListingDrawer({
       })
       if (!res.ok) {
         const body = await res.json().catch(() => ({}))
-        console.error("[ListingDrawer] outreach failed:", body)
+        setApproveError(body.error ?? "Failed to queue outreach")
         return
       }
       onStatusChange(listing!.id, "Reviewing")
       setApproved(true)
     } catch (err) {
+      setApproveError("Failed to queue outreach")
       console.error("[ListingDrawer] outreach:", err)
     } finally {
       setApproving(false)
@@ -225,7 +229,14 @@ export function ListingDrawer({
         </ScrollArea>
 
         {/* Footer actions */}
-        <div className="flex items-center gap-3 border-t border-border p-4 bg-card">
+        <div className="flex flex-col gap-2 border-t border-border p-4 bg-card">
+          {approveError && (
+            <div className="flex items-center gap-1.5 text-xs text-destructive">
+              <AlertCircle className="size-3.5 shrink-0" />
+              {approveError}
+            </div>
+          )}
+          <div className="flex items-center gap-3">
           {approved ? (
             <>
               <div className="flex items-center gap-2 text-sm text-emerald-600 dark:text-emerald-400 flex-1">
@@ -264,6 +275,7 @@ export function ListingDrawer({
               </Button>
             </>
           )}
+          </div>
         </div>
       </SheetContent>
     </Sheet>
