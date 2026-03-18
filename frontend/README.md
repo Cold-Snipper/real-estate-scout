@@ -22,6 +22,7 @@ App runs at **http://localhost:3000**. The backend API must be running at **http
 | `/crm` | CRM — lead and contact management |
 | `/available` | Available listings browser |
 | `/settings` | User / app settings |
+| `/contacter` | Contacter — mailer dashboard for atHome/Immotop + WhatsApp |
 
 ## Stack
 
@@ -41,7 +42,8 @@ frontend/
 │   │   ├── page.tsx        # Dashboard home
 │   │   ├── crm/            # CRM page
 │   │   ├── available/      # Listings page
-│   │   └── settings/       # Settings page
+│   │   ├── settings/       # Settings page
+│   │   └── contacter/      # Contacter (mailer) page, talks to /api/mailer/*
 │   ├── login/page.tsx
 │   └── signup/page.tsx
 ├── components/

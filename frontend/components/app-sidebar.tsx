@@ -2,13 +2,15 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Building2, Sparkles, Search, Users, Settings, Store } from "lucide-react"
+import { Building2, Sparkles, Search, Users, Settings, Store, UserPlus, Send } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const navItems = [
   { label: "Fresh Listings", icon: Sparkles, href: "/" },
   { label: "Available Listings", icon: Search, href: "/available" },
   { label: "CRM", icon: Users, href: "/crm" },
+  { label: "Contacter", icon: Send, href: "/contacter" },
+  { label: "Operator Onboarding", icon: UserPlus, href: "/operator-onboarding" },
   { label: "B2C App", icon: Store, href: "/b2c-snippy" },
   { label: "Settings", icon: Settings, href: "/settings" },
 ]
