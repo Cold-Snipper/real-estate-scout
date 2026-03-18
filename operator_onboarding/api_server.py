@@ -28,6 +28,7 @@ from operator_onboarding.documents import (
     DOCUMENT_TYPES,
 )
 from operator_onboarding.context_builder import get_provider_context
+from operator_onboarding.mailer_router import router as mailer_router
 from lib.crm_storage import (
     init_crm_db,
     get_all_owners as crm_get_all_owners,
@@ -111,6 +112,43 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Mailer endpoints: /api/mailer/*
+app.include_router(mailer_router)
+
+
+# ---------- Mailer spectator (screenshots) ----------
+@app.get("/api/mailer/spectator/latest")
+def mailer_spectator_latest() -> dict[str, Any]:
+    """
+    Return metadata for the latest Playwright screenshot captured during a run.
+    """
+    try:
+        from mailer.spectator import read_latest
+
+        return {"ok": True, "latest": read_latest()}
+    except Exception as e:
+        return {"ok": False, "error": str(e), "latest": None}
+
+
+@app.get("/api/mailer/spectator/image/{filename}")
+def mailer_spectator_image(filename: str):
+    """
+    Serve spectator screenshots from data/mailer_spectator/.
+    """
+    try:
+        from mailer.spectator import spectator_dir
+
+        base = spectator_dir()
+        safe = Path(filename).name  # prevent traversal
+        p = (base / safe).resolve()
+        if not str(p).startswith(str(base.resolve())) or not p.exists():
+            raise HTTPException(status_code=404, detail="Screenshot not found")
+        return FileResponse(str(p), media_type="image/png")
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.get("/")
